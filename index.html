@@ -119,12 +119,70 @@
   .badge-pos{background:#fee2e2;color:#b91c1c}
   .badge-sq{background:#fef3c7;color:#a16207}
   .logic-memo{margin-top:12px;padding-top:10px;border-top:1px dashed #cbd5e1;font-size:12.5px;color:#334155;line-height:1.5}
+  /* 访问密钥门禁 */
+  .gate-overlay{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;background:linear-gradient(135deg,#0f172a,#1e3a8a)}
+  .gate-box{background:#fff;border-radius:16px;padding:40px 36px;text-align:center;
+    box-shadow:0 8px 32px rgba(0,0,0,.28);max-width:400px;width:90%}
+  .gate-box h2{font-size:20px;color:#1e3a8a;margin-bottom:6px}
+  .gate-box p{font-size:13px;color:#8a97a8;margin-bottom:20px}
+  .gate-box input{width:100%;padding:12px 16px;border-radius:8px;border:2px solid #d9d9d9;
+    font-size:16px;text-align:center;letter-spacing:4px;outline:none;transition:border .2s}
+  .gate-box input:focus{border-color:#2563eb}
+  .gate-box button{width:100%;margin-top:16px;padding:12px;border-radius:8px;background:#2563eb;
+    color:#fff;border:none;font-size:16px;font-weight:600;cursor:pointer;transition:background .2s}
+  .gate-box button:hover{background:#1d4ed8}
+  .gate-error{color:#dc2626;font-size:13px;margin-top:10px;min-height:20px}
+  .gate-footer{color:rgba(255,255,255,.6);font-size:12px;margin-top:20px}
+  /* 顶栏版本号 + 更新记录 */
+  .header-bar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .ver-badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
+    border-radius:20px;padding:3px 14px;font-size:13px;font-weight:600;letter-spacing:.5px;margin-left:12px;vertical-align:middle}
+  .ver-badge b{color:#ffd54f}
+  .ver-update-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;
+    border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;white-space:nowrap;transition:.15s}
+  .ver-update-btn:hover{background:rgba(255,255,255,.22)}
+  .ver-log-panel{background:#fff;border:1px solid var(--line);border-radius:12px;margin:14px 0 0;overflow:hidden;display:none}
+  .ver-log-panel.show{display:block}
+  .ver-log-header{background:#0f172a;color:#fff;padding:11px 18px;font-size:14px;font-weight:600;
+    display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+  .ver-log-body{max-height:300px;overflow-y:auto;padding:6px 0}
+  .ver-log-item{display:flex;align-items:center;gap:14px;padding:10px 18px;font-size:13px;border-bottom:1px solid #f0f0f0}
+  .ver-log-item:last-child{border-bottom:none}
+  .ver-log-item:nth-child(odd){background:#fafbfc}
+  .ver-log-ver{font-weight:700;color:#1e3a8a;min-width:64px}
+  .ver-log-date{color:#555;min-width:130px;font-family:monospace}
+  .ver-log-desc{color:#334155}
+  .ver-log-empty{padding:18px;text-align:center;color:#999;font-size:13px}
 </style>
 </head>
 <body>
+<!-- 访问密钥门禁 -->
+<div class="gate-overlay" id="gateOverlay">
+  <div class="gate-box">
+    <h2>&#x1f512; 日元兑美元宏观驱动全景</h2>
+    <p>请输入访问密钥</p>
+    <input type="password" id="gateInput" placeholder="输入密钥" maxlength="20" autofocus onkeydown="if(event.key==='Enter')unlockGate()">
+    <button onclick="unlockGate()">验证进入</button>
+    <div class="gate-error" id="gateError"></div>
+  </div>
+  <div class="gate-footer">JPY/USD Macro Driver Map · 2010–2026</div>
+</div>
 <header>
-  <h1>日元兑美元宏观驱动全景 · JPY/USD Macro Driver Map</h1>
-  <p>覆盖 2010–2026 的汇率走势与宏观因子联动分析（汇率统一以「每100日元兑美元」表示；数值越低=日元越弱）。含美联储 vs 日本央行利差、贸易差额、Brent 原油、美国 10Y 国债收益率、Carry Trade 逻辑、相关性热力图、因果链模型与动态驱动网络图。汇率取自 FRED / 日本银行官方年度均值（4 位小数）：2010–2025 为官方数据，2026 为上半年实际（橙色点）。</p>
+  <div class="header-bar">
+    <div>
+      <h1>日元兑美元宏观驱动全景 <span class="ver-badge">版本 <b>Ver 1.2</b></span></h1>
+      <p>覆盖 2010–2026 的汇率走势与宏观因子联动分析（汇率统一以「每100日元兑美元」表示；数值越低=日元越弱）。含美联储 vs 日本央行利差、贸易差额、Brent 原油、美国 10Y 国债收益率、Carry Trade 逻辑、相关性热力图、因果链模型与动态驱动网络图。汇率取自 FRED / 日本银行官方年度均值（4 位小数）：2010–2025 为官方数据，2026 为上半年实际（橙色点）。</p>
+    </div>
+    <button class="ver-update-btn" onclick="toggleVerLog()">&#x1f4dc; 更新记录</button>
+  </div>
+  <div class="ver-log-panel" id="verLogPanel">
+    <div class="ver-log-header" onclick="toggleVerLog()">
+      <span>&#x1f4dc; 更新记录</span>
+      <span id="verLogIcon">&#x25bc; 展开</span>
+    </div>
+    <div class="ver-log-body" id="verLogBody"></div>
+  </div>
 </header>
 
 <nav><div class="wrap">
@@ -727,6 +785,31 @@ sEl('simReset').addEventListener('click',()=>{
   renderSim();
 });
 renderSim();
+</script>
+<script>
+// ===== 顶栏版本号 + 更新记录 =====
+var VER_LOGS = [
+  {version:"Ver 1.2", date:"2026-07-20", desc:"新增顶栏版本徽章与「更新记录」小组件"},
+  {version:"Ver 1.1", date:"2026-07-20", desc:"新增访问密钥门禁（cl2026）"},
+  {version:"Ver 1.0", date:"2026-07-20", desc:"初始版本上线 GitHub Pages（ver.001 基线）"}
+];
+(function renderVerLogs(){
+  var body=document.getElementById("verLogBody");
+  if(!VER_LOGS||!VER_LOGS.length){body.innerHTML='<div class="ver-log-empty">暂无更新记录</div>';return;}
+  var html="";
+  for(var i=0;i<VER_LOGS.length;i++){
+    var e=VER_LOGS[i];
+    html+='<div class="ver-log-item"><span class="ver-log-ver">'+e.version+
+      '</span><span class="ver-log-date">'+e.date+
+      '</span><span class="ver-log-desc">'+e.desc+'</span></div>';
+  }
+  body.innerHTML=html;
+})();
+function toggleVerLog(){
+  var p=document.getElementById("verLogPanel"), ic=document.getElementById("verLogIcon");
+  if(p.classList.contains("show")){p.classList.remove("show");ic.innerHTML='&#x25bc; 展开';}
+  else{p.classList.add("show");ic.innerHTML='&#x25b2; 收起';}
+}
 </script>
 </body>
 </html>
