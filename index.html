@@ -226,7 +226,7 @@
 <header>
   <div class="header-bar">
     <div>
-      <h1>日元兑美元宏观驱动全景 <span class="ver-badge">版本 <b>Ver 1.8</b></span></h1>
+      <h1>日元兑美元宏观驱动全景 <span class="ver-badge">版本 <b>Ver 1.9</b></span></h1>
       <p>覆盖 2010–2026 的汇率走势与宏观因子联动分析（汇率统一以「USD/JPY（1美元兑多少日元）」表示；数值越高=日元越弱）。含美联储 vs 日本央行利差、贸易差额、Brent 原油、美国 10Y 国债收益率、Carry Trade 逻辑、相关性热力图、因果链模型与动态驱动网络图。汇率取自 FRED / 日本银行官方年度均值（4 位小数）：2010–2025 为官方数据，2026 为上半年实际（橙色点）。</p>
     </div>
     <button class="ver-update-btn" onclick="toggleVerLog()">&#x1f4dc; 更新记录</button>
@@ -857,6 +857,7 @@ renderSim();
 <script>
 // ===== 顶栏版本号 + 更新记录 =====
 var VER_LOGS = [
+  {version:"Ver 1.9", date:"2026-07-25", desc:"实时汇率修正：FRED DEXJPUS 官方序列滞后约一周，7月波动大时失真；改为优先展示实时市场汇率（open.er-api.com），「刷新」按钮直连实时汇率源，标注官方值与数据日期"},
   {version:"Ver 1.8", date:"2026-07-25", desc:"全站汇率口径调整为 USD/JPY（1美元兑多少日元，数值越高=日元越弱）；实时追踪模块缩小并移至「各因子数值来源与官方依据」之前"},
   {version:"Ver 1.7", date:"2026-07-25", desc:"实时模块重构：免 FRED Key，改读同域官方快照 live-data.json（无 CORS）；汇率主源日本银行、兜底公开市场汇率；10Y/联邦基金/日利率/贸易差均来自 FRED；新增「刷新实时数据」按钮"},
   {version:"Ver 1.6", date:"2026-07-25", desc:"实时汇率卡片统一为「每100日元美元价值」(美元/100¥) 口径，与静态图表一致"},
@@ -920,7 +921,7 @@ function toggleVerLog(){
   function cardHTML(item){
     var r = results[item.id] || {};
     var val = r.ok ? fmt(item, r.value) : (r.err ? '获取失败' : '…');
-    var src = item.src;
+    var src = r.src || item.src;
     var date = r.date ? ('数据日期: ' + r.date) : '';
     var cls = r.ok ? 'ok' : (r.err ? 'err' : '');
     return '<div class="live-card ' + cls + '">' +
@@ -960,8 +961,17 @@ function toggleVerLog(){
           var it = d.items[id];
           if(it && !it.error){ results[id] = {ok:true, value:it.value, date:it.date}; }
         }
-        if(!results['DEXJPUS'] && d.fallback && d.fallback.jpy_per_usd){
-          results['DEXJPUS'] = {ok:true, value:d.fallback.jpy_per_usd, date:'公开市场汇率(兜底)'};
+        // 汇率：FRED DEXJPUS 官方序列常滞后约一周；若兜底市场汇率更新，则优先展示实时市场汇率
+        var fx = results['DEXJPUS'];
+        var fb = d.fallback;
+        if(fb && fb.jpy_per_usd){
+          var fbMs = fb.updated ? Date.parse(fb.updated) : NaN;
+          var fxMs = (fx && fx.date) ? Date.parse(fx.date) : NaN;
+          var fbLabel = fb.updated ? new Date(fbMs).toLocaleDateString('zh-CN') : '';
+          if(!fx || isNaN(fxMs) || (!isNaN(fbMs) && fbMs > fxMs)){
+            results['DEXJPUS'] = {ok:true, value:fb.jpy_per_usd, date:'实时市场汇率 ' + fbLabel,
+              src:'公开市场汇率（实时）· FRED DEXJPUS 官方值 ' + (fx?fx.value+'@'+fx.date:'暂缺')};
+          }
         }
         render();
         var t = (d.updated||'').replace('T',' ').replace('Z',' UTC');
@@ -993,12 +1003,24 @@ function toggleVerLog(){
     });
     return chain;
   }
+  // 实时汇率：直连公开市场汇率 API（浏览器可跨域），FRED DEXJPUS 官方序列滞后不适合做实时
+  function fetchSpotFx(){
+    return fetch('https://open.er-api.com/v6/latest/USD', {cache:'no-store'})
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function(d){
+        var jpy = d && d.rates && d.rates.JPY;
+        if(!isFinite(jpy)) throw new Error('no JPY');
+        var when = d.time_last_update_utc ? new Date(d.time_last_update_utc).toLocaleString('zh-CN') : '';
+        results['DEXJPUS'] = {ok:true, value:jpy, date:'实时市场汇率 ' + when, src:'公开市场汇率（实时）open.er-api.com'};
+      });
+  }
   function refreshLive(){
-    setStatus('正在尝试实时抓取（经公共代理）…');
+    setStatus('正在尝试实时抓取（汇率走实时源，利率/贸易差经公共代理）…');
     var tasks = [];
+    tasks.push(fetchSpotFx().catch(function(){ /* 保留快照汇率 */ }));
     for(var g in groups){
       groups[g].items.forEach(function(item){
-        if(item.wb || item.id==='DCOILBRENTEU') return;
+        if(item.wb || item.id==='DCOILBRENTEU' || item.id==='DEXJPUS') return;
         (function(it){
           tasks.push(proxiedFred(it.id).then(function(res){ results[it.id] = {ok:true, value:res.value, date:res.date}; })
             .catch(function(){ /* 保留快照值 */ }));
