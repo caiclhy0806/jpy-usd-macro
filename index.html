@@ -892,7 +892,7 @@ function toggleVerLog(){
   var FRED_KEY = sessionStorage.getItem('jpy_fred_key') || '';
   var groups = {
     global: {name:'全球 · 汇率 / 大宗', items:[
-      {id:'DEXJPUS',          label:'USD/JPY 汇率',  unit:'¥/USD',  src:'日本银行 Bank of Japan',            scale:1,    dec:2},
+      {id:'DEXJPUS',          label:'JPY/USD 汇率', unit:'美元/100¥', src:'日本银行 Bank of Japan', conv:'jpy100', dec:4},
       {id:'DCOILBRENTEU',     label:'Brent 原油',     unit:'美元/桶', src:'美国能源署 EIA',                   scale:1,    dec:2}
     ]},
     us: {name:'美国 United States', items:[
@@ -914,7 +914,8 @@ function toggleVerLog(){
   function fmt(item, v){
     var n = num(v);
     if(isNaN(n)) return '—';
-    return (n * item.scale).toFixed(item.dec) + (item.unit ? (' ' + item.unit) : '');
+    var out = item.conv === 'jpy100' ? (100 / n) : (n * item.scale);
+    return out.toFixed(item.dec) + (item.unit ? (' ' + item.unit) : '');
   }
   function cardHTML(item){
     var r = results[item.id] || {};
