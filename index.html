@@ -226,7 +226,7 @@
 <header>
   <div class="header-bar">
     <div>
-      <h1>日元兑美元宏观驱动全景 <span class="ver-badge">版本 <b>Ver 1.6</b></span></h1>
+      <h1>日元兑美元宏观驱动全景 <span class="ver-badge">版本 <b>Ver 1.7</b></span></h1>
       <p>覆盖 2010–2026 的汇率走势与宏观因子联动分析（汇率统一以「每100日元兑美元」表示；数值越低=日元越弱）。含美联储 vs 日本央行利差、贸易差额、Brent 原油、美国 10Y 国债收益率、Carry Trade 逻辑、相关性热力图、因果链模型与动态驱动网络图。汇率取自 FRED / 日本银行官方年度均值（4 位小数）：2010–2025 为官方数据，2026 为上半年实际（橙色点）。</p>
     </div>
     <button class="ver-update-btn" onclick="toggleVerLog()">&#x1f4dc; 更新记录</button>
@@ -260,17 +260,13 @@
   <!-- 实时官方数据追踪 -->
   <section id="live"><div class="card">
     <h2 style="margin-top:0">🌐 实时官方数据追踪 <span style="font-size:12px;color:#64748b;font-weight:400">Live Official Data Tracker</span></h2>
-    <div class="live-note">数据基于美 / 日 / 中官方来源<b>动态抓取</b>：美国、日本经 <b>FRED（圣路易斯联储）</b>，中国经 <b>World Bank Open Data</b>（源自中国国家统计局、海关总署）。每张卡片均<b>标注来源</b>。美国 / 日本序列需要 FRED API Key（免费，见右侧链接）；中国指标无需 Key。</div>
+    <div class="live-note">数据基于美 / 日 / 中官方来源：美国、日本经 <b>FRED（圣路易斯联储）</b>，中国经 <b>World Bank Open Data</b>（中国国家统计局、海关总署）。每张卡片均<b>标注来源</b>。汇率主源为日本银行（USD/JPY），不可达时回退公开市场汇率；利率 / 贸易差均来自 FRED 官方序列。<b>无需 API Key</b>。</div>
     <div class="fred-key-row">
-      <label>FRED API Key</label>
-      <input id="fredKey" type="password" placeholder="粘贴 FRED Key（美国/日本数据需要，中国数据无需）" autocomplete="off" />
-      <button class="ver-update-btn" onclick="saveFredKey()">保存并刷新</button>
-      <a href="https://fredaccount.stlouisfed.org/apikeys" target="_blank" rel="noopener">免费获取 ↗</a>
-      <span id="fredKeyStatus" class="fred-key-status"></span>
+      <button id="liveRefresh" class="ver-update-btn" onclick="refreshLive()">🔄 刷新实时数据</button>
     </div>
     <div id="liveGrid" class="live-grid"></div>
     <div id="liveStatus" class="live-status"></div>
-    <div class="live-note" style="margin-top:10px">注：下方历史走势图（①–⑩）仍为<b>静态基线</b>（2010–2026 官方年度均值），本模块为在其之上追加的实时追踪层。</div>
+    <div class="live-note" style="margin-top:10px">注：下方历史走势图（①–⑩）仍为<b>静态基线</b>（2010–2026 官方年度均值），本模块为在其之上追加的实时追踪层。实时数据由服务端官方快照（同域 <code>live-data.json</code>）提供，点击「刷新」经公共代理尽力获取最新。</div>
   </div></section>
 
   <!-- KPI -->
@@ -692,7 +688,7 @@ const fxN=norm(jpyusd);
 new Chart(document.getElementById('cDyn'),{type:'line',
   data:{labels:years,datasets:[
     ...factors.map(f=>({label:f,data:norm(fSeries[f]),_raw:fSeries[f],borderColor:dynColors[f],borderWidth:2.2,tension:.3,pointRadius:1.5})),
-    {label:'汇率(归一化)',data:fxN,_raw:jpyusd,borderColor:C.red,borderWidth:2.5,tension:.3,pointRadius:1.5,borderDash:[6,4]}
+    {label:'汇率·每100日元(JPY/USD)',data:fxN,_raw:jpyusd,borderColor:C.red,borderWidth:2.5,tension:.3,pointRadius:1.5,borderDash:[6,4]}
   ]},
   options:{maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11}}},
     tooltip:{callbacks:{afterLabel:(c)=>{
@@ -861,6 +857,7 @@ renderSim();
 <script>
 // ===== 顶栏版本号 + 更新记录 =====
 var VER_LOGS = [
+  {version:"Ver 1.7", date:"2026-07-25", desc:"实时模块重构：免 FRED Key，改读同域官方快照 live-data.json（无 CORS）；汇率主源日本银行、兜底公开市场汇率；10Y/联邦基金/日利率/贸易差均来自 FRED；新增「刷新实时数据」按钮"},
   {version:"Ver 1.6", date:"2026-07-25", desc:"实时汇率卡片统一为「每100日元美元价值」(美元/100¥) 口径，与静态图表一致"},
   {version:"Ver 1.5", date:"2026-07-25", desc:"门禁加固：addEventListener 兜底绑定；Chart.js 增加 cdnjs 备用源（防 jsdelivr 在部分网络不可达导致页面卡死）"},
   {version:"Ver 1.4", date:"2026-07-25", desc:"修复访问密钥门禁无法进入的问题（unlockGate 逻辑缺失导致点击/回车无效），并完善会话记忆"},
@@ -888,21 +885,21 @@ function toggleVerLog(){
 }
 </script>
 <script>
-// ===== 实时官方数据追踪 (ver.004) =====
+// ===== 实时官方数据追踪 (ver.009)：同域官方快照 + 尽力实时刷新 =====
 (function(){
-  var FRED_KEY = sessionStorage.getItem('jpy_fred_key') || '';
+  var SNAP = 'live-data.json';
   var groups = {
     global: {name:'全球 · 汇率 / 大宗', items:[
-      {id:'DEXJPUS',          label:'JPY/USD 汇率', unit:'美元/100¥', src:'日本银行 Bank of Japan', conv:'jpy100', dec:4},
-      {id:'DCOILBRENTEU',     label:'Brent 原油',     unit:'美元/桶', src:'美国能源署 EIA',                   scale:1,    dec:2}
+      {id:'DEXJPUS',          label:'JPY/USD 汇率（每100日元）', unit:'美元/100¥', src:'日本银行 Bank of Japan', conv:'jpy100', dec:4},
+      {id:'DCOILBRENTEU',     label:'Brent 原油',     unit:'美元/桶', src:'美国能源署 EIA (via FRED)',       scale:1,    dec:2}
     ]},
     us: {name:'美国 United States', items:[
       {id:'FEDFUNDS',         label:'联邦基金利率',   unit:'%',      src:'Federal Reserve (FOMC)',          scale:1,    dec:2},
-      {id:'DGS10',            label:'10Y 国债收益率', unit:'%',      src:'美国财政部 U.S. Treasury',         scale:1,    dec:2}
+      {id:'DGS10',            label:'10Y 国债收益率', unit:'%',      src:'美国财政部 U.S. Treasury (via FRED)', scale:1, dec:2}
     ]},
     jp: {name:'日本 Japan', items:[
-      {id:'IRSTCB01JPM156N',  label:'政策利率',       unit:'%',      src:'日本银行 Bank of Japan',            scale:1,    dec:2},
-      {id:'JPNXTNTVA01CXMLM', label:'贸易差额',       unit:'十亿美元', src:'日本财务省 MOF Japan',            scale:1e-9, dec:2}
+      {id:'IRSTCB01JPM156N',  label:'政策利率',       unit:'%',      src:'日本银行 Bank of Japan (via FRED)', scale:1, dec:2},
+      {id:'JPNXTNTVA01CXMLM', label:'贸易差额',       unit:'十亿美元', src:'日本财务省 MOF Japan (via FRED)', scale:1e-9, dec:2}
     ]},
     cn: {name:'中国 China', items:[
       {id:'NY.GDP.MKTP.KD.ZG', label:'GDP 增速',      unit:'%',      src:'中国国家统计局 NBS',                scale:1,    dec:1, wb:true},
@@ -911,6 +908,7 @@ function toggleVerLog(){
     ]}
   };
   var results = {};
+  var snap = null;
   function num(v){ var n = parseFloat(v); return isFinite(n) ? n : NaN; }
   function fmt(item, v){
     var n = num(v);
@@ -921,7 +919,7 @@ function toggleVerLog(){
   function cardHTML(item){
     var r = results[item.id] || {};
     var val = r.ok ? fmt(item, r.value) : (r.err ? '获取失败' : '…');
-    var src = item.src + (item.wb ? '' : (' · FRED:' + item.id));
+    var src = item.src;
     var date = r.date ? ('数据日期: ' + r.date) : '';
     var cls = r.ok ? 'ok' : (r.err ? 'err' : '');
     return '<div class="live-card ' + cls + '">' +
@@ -951,12 +949,70 @@ function toggleVerLog(){
     document.getElementById('liveGrid').innerHTML = html;
   }
   function setStatus(msg){ document.getElementById('liveStatus').textContent = msg; }
-  function fetchFRED(item){
-    var url = 'https://api.stlouisfed.org/fred/series/observations?series_id=' + encodeURIComponent(item.id) +
-      '&api_key=' + encodeURIComponent(FRED_KEY) + '&file_type=json&sort_order=desc&limit=1';
-    return fetch(url).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-      .then(function(d){ var o = (d.observations && d.observations[0]) || {}; return {value:o.value, date:o.date}; });
+
+  // 1) 同域官方快照（无 CORS，稳定）
+  function loadSnap(){
+    return fetch(SNAP, {cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function(d){
+        snap = d;
+        for(var id in d.items){
+          var it = d.items[id];
+          if(it && !it.error){ results[id] = {ok:true, value:it.value, date:it.date}; }
+        }
+        if(!results['DEXJPUS'] && d.fallback && d.fallback.jpy_per_usd){
+          results['DEXJPUS'] = {ok:true, value:d.fallback.jpy_per_usd, date:'公开市场汇率(兜底)'};
+        }
+        render();
+        var t = (d.updated||'').replace('T',' ').replace('Z',' UTC');
+        setStatus('📌 官方快照更新于 ' + t + ' · 点「刷新实时数据」尝试获取最新（需可访问公共代理）');
+      });
   }
+
+  // 2) 尽力实时：经公共 CORS 代理取 FRED 最新
+  function proxiedFred(id){
+    var raw = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=' + id;
+    var enc = encodeURIComponent(raw);
+    var urls = [
+      'https://api.allorigins.win/raw?url=' + enc,
+      'https://api.codetabs.com/v1/proxy/?quest=' + raw
+    ];
+    var chain = Promise.reject();
+    urls.forEach(function(u){
+      chain = chain.catch(function(){
+        return fetch(u).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+          .then(function(txt){
+            var rows = txt.trim().split('\n').filter(Boolean);
+            for(var i=rows.length-1;i>=1;i--){
+              var p = rows[i].split(',');
+              if(p.length===2){ var v=parseFloat(p[1]); if(isFinite(v)) return {value:v, date:p[0]}; }
+            }
+            throw new Error('no row');
+          });
+      });
+    });
+    return chain;
+  }
+  function refreshLive(){
+    setStatus('正在尝试实时抓取（经公共代理）…');
+    var tasks = [];
+    for(var g in groups){
+      groups[g].items.forEach(function(item){
+        if(item.wb || item.id==='DCOILBRENTEU') return;
+        (function(it){
+          tasks.push(proxiedFred(it.id).then(function(res){ results[it.id] = {ok:true, value:res.value, date:res.date}; })
+            .catch(function(){ /* 保留快照值 */ }));
+        })(item);
+      });
+    }
+    Promise.all(tasks).then(function(){
+      render();
+      var ok = Object.keys(results).filter(function(k){return results[k].ok;}).length;
+      setStatus('✅ 实时刷新完成：可直达的序列已更新为最新；不可达的保留官方快照。当前有效 ' + ok + ' 项。');
+    });
+  }
+  window.refreshLive = refreshLive;
+
+  // 3) 中国指标：World Bank（尽力）
   function fetchWB(item){
     var url = 'https://api.worldbank.org/v2/country/CHN/indicator/' + encodeURIComponent(item.id) +
       '?format=json&date=2010:2026&per_page=100';
@@ -965,49 +1021,20 @@ function toggleVerLog(){
         for(var i=0;i<arr.length;i++){ if(arr[i].value != null && (!best || String(arr[i].date) > String(best.date))) best = arr[i]; }
         if(!best) throw new Error('no data'); return {value:best.value, date:best.date}; });
   }
-  function loadAll(){
-    if(!FRED_KEY){ setStatus('未配置 FRED Key：美国/日本指标待配置（中国指标将照常获取）。'); }
-    else { setStatus('正在抓取实时数据…'); }
-    var tasks = [];
-    for(var g in groups){
-      var grp = groups[g];
-      for(var i=0;i<grp.items.length;i++){
-        var item = grp.items[i];
-        if(item.wb){ continue; }
-        if(!FRED_KEY){ results[item.id] = {err:true}; continue; }
-        (function(it){
-          tasks.push(fetchFRED(it).then(function(res){ results[it.id] = {ok:true, value:res.value, date:res.date}; })
-            .catch(function(e){ results[it.id] = {err:true, msg:String(e)}; }));
-        })(item);
-      }
-    }
-    for(var g2 in groups){
-      var grp2 = groups[g2];
-      for(var j=0;j<grp2.items.length;j++){
-        var it2 = grp2.items[j];
-        if(!it2.wb){ continue; }
-        (function(it){
-          tasks.push(fetchWB(it).then(function(res){ results[it.id] = {ok:true, value:res.value, date:res.date}; })
-            .catch(function(e){ results[it.id] = {err:true, msg:String(e)}; }));
-        })(it2);
-      }
-    }
-    Promise.all(tasks).then(function(){
-      render();
-      var now = new Date();
-      setStatus('最后更新: ' + now.toLocaleString() + ' · 来源: FRED (St. Louis Fed) / World Bank Open Data');
-    });
+  function loadWB(){
+    var tasks=[];
+    for(var g in groups){ groups[g].items.forEach(function(item){
+      if(!item.wb) return;
+      (function(it){ tasks.push(fetchWB(it).then(function(res){ results[it.id]={ok:true,value:res.value,date:res.date}; })
+        .catch(function(e){ results[it.id]={err:true,msg:String(e)}; })); })(item);
+    }); }
+    if(tasks.length) Promise.all(tasks).then(function(){ render(); });
   }
-  window.saveFredKey = function(){
-    var v = document.getElementById('fredKey').value.trim();
-    if(!v){ document.getElementById('fredKeyStatus').textContent = '请输入 Key'; return; }
-    FRED_KEY = v; sessionStorage.setItem('jpy_fred_key', v);
-    document.getElementById('fredKeyStatus').textContent = '已保存';
-    loadAll();
-  };
-  document.getElementById('fredKey').value = FRED_KEY;
-  document.getElementById('fredKeyStatus').textContent = FRED_KEY ? '已保存' : '';
-  loadAll();
+
+  loadSnap().then(loadWB).catch(function(e){
+    setStatus('快照加载失败: ' + e.message + '（请确认 live-data.json 已部署到 Pages）');
+    loadWB();
+  });
 })();
 </script>
 </body>

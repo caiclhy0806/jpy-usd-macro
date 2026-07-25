@@ -1,0 +1,35 @@
+{
+  "updated": "2026-07-25T12:41:04Z",
+  "items": {
+    "DEXJPUS": {
+      "value": 162.43,
+      "date": "2026-07-17"
+    },
+    "DCOILBRENTEU": {
+      "value": 86.99,
+      "date": "2026-07-20"
+    },
+    "FEDFUNDS": {
+      "value": 3.63,
+      "date": "2026-06-01"
+    },
+    "DGS10": {
+      "value": 4.71,
+      "date": "2026-07-23"
+    },
+    "IRSTCB01JPM156N": {
+      "value": 0.3,
+      "date": "2023-12-01"
+    },
+    "JPNXTNTVA01CXMLM": {
+      "value": 1878878000.0,
+      "date": "2026-04-01"
+    }
+  },
+  "fallback": {
+    "usd_per_jpy": 0.006104,
+    "jpy_per_usd": 163.822652,
+    "cny_per_usd": 6.781903,
+    "updated": "Sat, 25 Jul 2026 00:02:32 +0000"
+  }
+}
