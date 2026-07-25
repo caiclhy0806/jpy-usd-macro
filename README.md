@@ -18,9 +18,12 @@
 | `ver.001` | 原始未改动版本（基线） |
 | `ver.002` | 新增访问密钥门禁 `cl2026` |
 | `ver.003` | 顶栏版本徽章 + 更新记录小组件 |
-| `ver.004` | 实时官方数据追踪模块（FRED 美国/日本 + World Bank 中国，逐卡标注来源）（当前线上） |
+| `ver.004` | 实时官方数据追踪模块（FRED 美国/日本 + World Bank 中国，逐卡标注来源） |
+| `ver.005` | 修复访问密钥门禁无法进入（unlockGate 逻辑缺失）；版本号升至 Ver 1.4（**当前线上**） |
 
-回退：`git checkout ver.001|ver.002|ver.003`，改完 `git push origin main`。
+回退：`git checkout ver.001` … `ver.005`，改完 `git push origin main`。
+
+> ⚠️ Pages 重建坑：push 后 GitHub Pages 常不自动重建（尤其 API 启用 Pages 的仓库），需手动触发 `POST /repos/caiclhy0806/jpy-usd-macro/pages/builds`（Bearer 令牌）。ver.004/ver.005 均因此手动触发后才更新。
 
 ## 实时官方数据追踪（ver.004）
 页面顶部新增「实时官方数据追踪」模块，按国家分组动态抓取并**逐卡标注来源**：
