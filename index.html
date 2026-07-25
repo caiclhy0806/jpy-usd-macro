@@ -164,16 +164,16 @@
   .fred-key-row input{flex:1;min-width:240px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px}
   .fred-key-row a{font-size:12px;color:#2563eb;white-space:nowrap}
   .fred-key-status{font-size:12px;color:#16a34a;font-weight:600}
-  .live-grid{margin-top:14px;display:flex;flex-direction:column;gap:16px}
-  .live-group-name{font-size:13px;font-weight:700;color:#1e3a8a;margin-bottom:8px;border-left:4px solid #2563eb;padding-left:8px}
-  .live-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
-  .live-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
-  .live-card.ok{border-left:4px solid #16a34a}
-  .live-card.err{border-left:4px solid #ef4444;background:#fef2f2}
-  .live-label{font-size:13px;font-weight:600;color:#1f2a37}
-  .live-val{font-size:24px;font-weight:700;color:#0f172a;margin:6px 0 2px;font-variant-numeric:tabular-nums}
-  .live-date{font-size:11.5px;color:#64748b;margin-bottom:4px}
-  .live-src{font-size:11px;color:#94a3b8;line-height:1.4}
+  .live-grid{margin-top:10px;display:flex;flex-direction:column;gap:10px}
+  .live-group-name{font-size:12px;font-weight:700;color:#1e3a8a;margin-bottom:6px;border-left:3px solid #2563eb;padding-left:7px}
+  .live-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+  .live-card{background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 10px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+  .live-card.ok{border-left:3px solid #16a34a}
+  .live-card.err{border-left:3px solid #ef4444;background:#fef2f2}
+  .live-label{font-size:11.5px;font-weight:600;color:#1f2a37}
+  .live-val{font-size:16px;font-weight:700;color:#0f172a;margin:3px 0 1px;font-variant-numeric:tabular-nums}
+  .live-date{font-size:10.5px;color:#64748b;margin-bottom:3px}
+  .live-src{font-size:10px;color:#94a3b8;line-height:1.35}
   .live-status{font-size:12px;color:#475569;margin-top:12px;font-family:monospace}
 </style>
 </head>
@@ -226,8 +226,8 @@
 <header>
   <div class="header-bar">
     <div>
-      <h1>日元兑美元宏观驱动全景 <span class="ver-badge">版本 <b>Ver 1.7</b></span></h1>
-      <p>覆盖 2010–2026 的汇率走势与宏观因子联动分析（汇率统一以「每100日元兑美元」表示；数值越低=日元越弱）。含美联储 vs 日本央行利差、贸易差额、Brent 原油、美国 10Y 国债收益率、Carry Trade 逻辑、相关性热力图、因果链模型与动态驱动网络图。汇率取自 FRED / 日本银行官方年度均值（4 位小数）：2010–2025 为官方数据，2026 为上半年实际（橙色点）。</p>
+      <h1>日元兑美元宏观驱动全景 <span class="ver-badge">版本 <b>Ver 1.8</b></span></h1>
+      <p>覆盖 2010–2026 的汇率走势与宏观因子联动分析（汇率统一以「USD/JPY（1美元兑多少日元）」表示；数值越高=日元越弱）。含美联储 vs 日本央行利差、贸易差额、Brent 原油、美国 10Y 国债收益率、Carry Trade 逻辑、相关性热力图、因果链模型与动态驱动网络图。汇率取自 FRED / 日本银行官方年度均值（4 位小数）：2010–2025 为官方数据，2026 为上半年实际（橙色点）。</p>
     </div>
     <button class="ver-update-btn" onclick="toggleVerLog()">&#x1f4dc; 更新记录</button>
   </div>
@@ -257,39 +257,27 @@
 
 <div class="wrap">
 
-  <!-- 实时官方数据追踪 -->
-  <section id="live"><div class="card">
-    <h2 style="margin-top:0">🌐 实时官方数据追踪 <span style="font-size:12px;color:#64748b;font-weight:400">Live Official Data Tracker</span></h2>
-    <div class="live-note">数据基于美 / 日 / 中官方来源：美国、日本经 <b>FRED（圣路易斯联储）</b>，中国经 <b>World Bank Open Data</b>（中国国家统计局、海关总署）。每张卡片均<b>标注来源</b>。汇率主源为日本银行（USD/JPY），不可达时回退公开市场汇率；利率 / 贸易差均来自 FRED 官方序列。<b>无需 API Key</b>。</div>
-    <div class="fred-key-row">
-      <button id="liveRefresh" class="ver-update-btn" onclick="refreshLive()">🔄 刷新实时数据</button>
-    </div>
-    <div id="liveGrid" class="live-grid"></div>
-    <div id="liveStatus" class="live-status"></div>
-    <div class="live-note" style="margin-top:10px">注：下方历史走势图（①–⑩）仍为<b>静态基线</b>（2010–2026 官方年度均值），本模块为在其之上追加的实时追踪层。实时数据由服务端官方快照（同域 <code>live-data.json</code>）提供，点击「刷新」经公共代理尽力获取最新。</div>
-  </div></section>
-
   <!-- KPI -->
   <section class="grid3">
-    <div class="kpi"><div class="v" style="color:var(--blue)">≈0.6324 <span style="font-size:13px;color:var(--sub)">美元/100¥ (2026上半年实际)</span></div><div class="l">2011 高点 1.2547 → 2026上半年 0.6324（每100日元美元价值，约 -50%）；2025 官方 0.6686</div></div>
+    <div class="kpi"><div class="v" style="color:var(--blue)">≈158.14 <span style="font-size:13px;color:var(--sub)">日元/美元 (2026上半年实际)</span></div><div class="l">2011 低点 79.70 → 2026上半年 158.14（1美元兑日元，日元价值约 -50%）；2025 官方 149.57</div></div>
     <div class="kpi"><div class="v" style="color:var(--red)">5.4%</div><div class="l">美日政策利差峰值（2023–24）</div></div>
     <div class="kpi"><div class="v" style="color:var(--amber)">≈20 万亿¥</div><div class="l">2022 日本贸易逆差峰值（能源进口成本飙升）</div></div>
   </section>
 
   <!-- ① 走势图 -->
   <section id="trend"><div class="card">
-    <h2><span class="tag">图 ①</span>日元兑美元走势图 · 每100日元美元价值 (2010–2025官方 / 2026上半年实际)</h2>
-    <p class="lead">年度均值（来源：FRED DEXJPUS / 日本银行，4 位小数），单位：美元 / 100日元。2010–2025 为官方年度均值，2026 为上半年实际均值（≈158.1 USD/JPY）。曲线呈"升值→贬值"长周期：安倍经济学与负利率使日元从 2012 起持续贬值；2022 后美日利差极致化推动其跌向 0.66；2025 年中曾反弹至 0.67，2026 上半年延续贬值至 0.63（与你所述"2026 较 2025 继续贬值"一致）。</p>
+    <h2><span class="tag">图 ①</span>美元兑日元走势图 · USD/JPY（1美元兑多少日元）(2010–2025官方 / 2026上半年实际)</h2>
+    <p class="lead">年度均值（来源：FRED DEXJPUS / 日本银行），单位：日元 / 美元（USD/JPY）。2010–2025 为官方年度均值，2026 为上半年实际均值（≈158.1）。曲线呈"升值→贬值"长周期：安倍经济学与负利率使日元从 2012 起持续贬值；2022 后美日利差极致化推动其升破 131；2025 年中曾回落至 149.6，2026 上半年延续贬值至 158.1（数值越高=日元越弱）。</p>
     <div class="chart-box"><canvas id="cTrend"></canvas></div>
-    <div class="takeaway">📌 <b>核心规律</b>：每100日元美元价值 与 美日利差 高度反向（r≈-0.81）。利差走阔→美元资产更吸引→抛日元买美元→该数值下滑（日元贬值）；利差收窄→回升（日元升值）。</div>
+    <div class="takeaway">📌 <b>核心规律</b>：USD/JPY 与 美日利差 高度正相关（r≈+0.81）。利差走阔→美元资产更吸引→抛日元买美元→USD/JPY 上行（日元贬值）；利差收窄→回落（日元升值）。</div>
   </div></section>
 
   <!-- ② 利差叠加 + 波纹 -->
   <section id="rate"><div class="card">
     <h2><span class="tag">图 ②</span>美联储 vs 日本央行利率 + 实际利差% vs 汇率波纹</h2>
-    <p class="lead">柱状为两国政策利率（%）。<strong>紫色曲线为实际利差 %(Fed−BOJ)</strong>，直接画在利率轴上（0–7%，天然在可视范围内，并真实显示利差从 2010 年 0.35% 走阔至 2025 年约 5.15% 的过程）；<strong>橙色虚线为汇率（美元/100日元）</strong>置于右轴。二者呈清晰的反向镜像——利差上行时，汇率下行（日元贬值）。鼠标悬停可见实际数值。</p>
+    <p class="lead">柱状为两国政策利率（%）。<strong>紫色曲线为实际利差 %(Fed−BOJ)</strong>，直接画在利率轴上（0–7%，天然在可视范围内，并真实显示利差从 2010 年 0.35% 走阔至 2025 年约 5.15% 的过程）；<strong>橙色虚线为汇率（USD/JPY，1美元兑日元）</strong>置于右轴。二者呈清晰的同向联动——利差上行时，USD/JPY 上行（日元贬值）。鼠标悬停可见实际数值。</p>
     <div class="chart-box"><canvas id="cRate"></canvas></div>
-    <div class="note">🟦 美联储利率　🟥 日本央行利率　🟪 实际利差 %(Fed−BOJ，紫色曲线，利率轴)　🟧 汇率 美元/100¥（橙色虚线，右轴）　→ 利差↑ 对应 汇率↓（日元贬值），长周期波纹反向。注：2026 上半年利差仅小幅收窄但汇率续贬，说明利差只是驱动之一，套息/资本流动/干预同样关键。<br><span style="color:#9f1239">※ 已弃用原「利差指数 2010=100」——因基期 0.35% 过小，到 2025 年被放大至约 1471 倍，远超可视范围、且把汇率指数压成底部直线，故改为实际利差%直接呈现。</span></div>
+    <div class="note">🟦 美联储利率　🟥 日本央行利率　🟪 实际利差 %(Fed−BOJ，紫色曲线，利率轴)　🟧 汇率 USD/JPY 日元/美元（橙色虚线，右轴）　→ 利差↑ 对应 USD/JPY↑（日元贬值），长周期波纹同向。注：2026 上半年利差仅小幅收窄但汇率续贬，说明利差只是驱动之一，套息/资本流动/干预同样关键。<br><span style="color:#9f1239">※ 已弃用原「利差指数 2010=100」——因基期 0.35% 过小，到 2025 年被放大至约 1471 倍，远超可视范围、且把汇率指数压成底部直线，故改为实际利差%直接呈现。</span></div>
   </div></section>
 
   <!-- ③ + ④ -->
@@ -309,14 +297,14 @@
   <!-- ⑤ -->
   <section id="ust"><div class="card">
     <h2><span class="tag">图 ⑤</span>美国 10 年期国债收益率</h2>
-    <p class="lead">10Y 美债是 Carry Trade 的"收益锚"与全球折现率核心。其上行同步推高美日利差，是每100日元美元价值 的直接驱动之一。</p>
+    <p class="lead">10Y 美债是 Carry Trade 的"收益锚"与全球折现率核心。其上行同步推高美日利差，是 USD/JPY 走势的直接驱动之一。</p>
     <div class="chart-box sm"><canvas id="cUst"></canvas></div>
   </div></section>
 
   <!-- ⑥ Carry Trade -->
   <section id="carry"><div class="card">
     <h2><span class="tag">图 ⑥</span>Carry Trade（套息交易）逻辑图</h2>
-    <p class="lead">借入低息日元 → 买入高息美元资产，赚取利差。利差越大，Carry Trade 规模越大 → 抛日元买美元 → 每100日元美元价值下滑（日元贬值）。2024 套息平仓曾引发日元急升（反向"闪崩"）。</p>
+    <p class="lead">借入低息日元 → 买入高息美元资产，赚取利差。利差越大，Carry Trade 规模越大 → 抛日元买美元 → USD/JPY 上行（日元贬值）。2024 套息平仓曾引发日元急升（反向"闪崩"）。</p>
     <svg class="diagram" viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#334155"/></marker>
@@ -333,20 +321,20 @@
       <text class="cap" x="525" y="156" text-anchor="middle">赚取利差 4–5%</text>
       <rect class="bx" x="650" y="110" width="100" height="64" rx="10" style="stroke:#d97706"/>
       <text class="bt" x="700" y="135" text-anchor="middle">获利了结</text>
-      <text class="cap" x="700" y="156" text-anchor="middle">汇率↓</text>
+      <text class="cap" x="700" y="156" text-anchor="middle">USD/JPY↑</text>
       <path d="M170,142 L223,142" stroke="#334155" stroke-width="2" marker-end="url(#ar)"/>
       <path d="M385,142 L438,142" stroke="#334155" stroke-width="2" marker-end="url(#ar)"/>
       <path d="M610,142 L648,142" stroke="#334155" stroke-width="2" marker-end="url(#ar)"/>
       <path d="M700,174 C700,250 200,250 95,174" stroke="#dc2626" stroke-width="2" fill="none" stroke-dasharray="6 5" marker-end="url(#ar)"/>
-      <text class="cap" x="380" y="240" text-anchor="middle" style="fill:#dc2626">利差收窄 / 风险厌恶 → 平仓反向：买回日元 → 每100日元美元价值急升（2024.8 闪崩）</text>
+      <text class="cap" x="380" y="240" text-anchor="middle" style="fill:#dc2626">利差收窄 / 风险厌恶 → 平仓反向：买回日元 → USD/JPY 急跌·日元急升（2024.8 闪崩）</text>
     </svg>
-    <div class="takeaway">📌 <b>正反馈</b>：利差↑ → 套息规模↑ → 日元供给↑ → 每100日元美元价值↓ → 进一步强化套息吸引力（直至反转）。这是日元贬值牛市的主引擎。</div>
+    <div class="takeaway">📌 <b>正反馈</b>：利差↑ → 套息规模↑ → 日元供给↑ → USD/JPY↑（日元贬值）→ 进一步强化套息吸引力（直至反转）。这是日元贬值牛市的主引擎。</div>
   </div></section>
 
   <!-- ⑦ 相关性热力图 + 动态视图 -->
   <section id="heat"><div class="card">
     <h2><span class="tag">图 ⑦</span>宏观因子相关性 · 合并波纹视图 + 对日元影响图示</h2>
-    <p class="lead">上方为左右两栏：左侧是各因子与「每100日元美元价值」的 Pearson 相关系数 <b>r</b> 与 <b>R²＝解释方差%</b>（基于 2010–2024 官方年度数据，实时计算，按影响大小排序）；右侧为 <b>对日元影响图示</b>（柱长＝R²，更直观比较重要性）。下方为四因子与汇率的合并归一化波纹，可直观验证：<b>利差（紫线）越大/上行，汇率（红虚线）越低/下行，日元贬值趋势越明显</b>；最下方为各因子因果解释。</p>
+    <p class="lead">上方为左右两栏：左侧是各因子与「USD/JPY（1美元兑日元）」的 Pearson 相关系数 <b>r</b> 与 <b>R²＝解释方差%</b>（基于 2010–2024 官方年度数据，实时计算，按影响大小排序）；右侧为 <b>对日元影响图示</b>（柱长＝R²，更直观比较重要性）。下方为四因子与汇率的合并归一化波纹，可直观验证：<b>利差（紫线）越大/上行，USD/JPY（红虚线）越高/上行，日元贬值趋势越明显</b>；最下方为各因子因果解释。</p>
     <div class="grid-7">
       <div class="corr-col">
         <table class="heat-table" id="heatTable"></table>
@@ -367,16 +355,16 @@
     </div>
     <div class="chart-box" style="height:300px;margin-top:18px"><canvas id="cDyn"></canvas></div>
     <div class="dyn-info" id="dynInfo" style="margin-top:12px"></div>
-    <div class="note" style="margin-top:12px">🟣 利差（紫）上行的阶段（2013–2015、2022–2024），汇率（红虚线）几乎同步下行——<b>利差越大，日元贬值趋势越明显</b>；🟢 贸易差（绿）在 2022 年深跌至 -20 万亿¥ 时，汇率亦在低位，验证逆差对日元的结构性压力。<br><span style="color:#9f1239">⚠ 本图四条因子线均为<b>区间归一化（0=期内最低，100=期内最高）</b>，仅用于比较"波纹形状"，<b>不是真实数值</b>。贸易差本身为负值（逆差），图中 85.1 这类数字只是其相对位置，悬停曲线可看实际万亿¥（含负号）。</span></div>
-    <div class="takeaway">📌 <b>读出结论（实时计算，汇率＝每100日元美元价值，官方数据）</b>：① <b>看 R² 比看 r 更直观</b>——<b>美日利差 R²≈66%（解释近 2/3 的日元波动）、美债10Y R²≈34%</b>，是统计上的核心驱动；<b>Brent R²≈7%、贸易差 R²≈1%</b>，年度均值下影响微弱。② <b>利差越大，日元贬值趋势越明显</b>：合并波纹图中紫线（利差）上行区间与红虚线（汇率）下行区间高度重合；美债10Y（青线）因是利差的"定价锚"，同样呈反向镜像。③ r 的符号（利差/美债为负、油价/贸易为正）只表示年度联动方向，<b>油价→贸易逆差→日元的传导是结构性逻辑</b>，被 2013(安倍)/2022(联储) 政策利率周期平滑，故年度 R² 小；但 2022 油价破百＋逆差创纪录＋日元急贬同期发生，机制成立。④ 颜色：紫=利差、青=美债10Y、橙=Brent、绿=贸易差、红虚线=汇率。</div>
+    <div class="note" style="margin-top:12px">🟣 利差（紫）上行的阶段（2013–2015、2022–2024），USD/JPY（红虚线）几乎同步上行——<b>利差越大，日元贬值趋势越明显</b>；🟢 贸易差（绿）在 2022 年深跌至 -20 万亿¥ 时，USD/JPY 亦在高位，验证逆差对日元的结构性压力。<br><span style="color:#9f1239">⚠ 本图四条因子线均为<b>区间归一化（0=期内最低，100=期内最高）</b>，仅用于比较"波纹形状"，<b>不是真实数值</b>。贸易差本身为负值（逆差），图中 85.1 这类数字只是其相对位置，悬停曲线可看实际万亿¥（含负号）。</span></div>
+    <div class="takeaway">📌 <b>读出结论（实时计算，汇率＝USD/JPY 1美元兑日元，官方数据）</b>：① <b>看 R² 比看 r 更直观</b>——<b>美日利差 R²≈66%（解释近 2/3 的日元波动）、美债10Y R²≈34%</b>，是统计上的核心驱动；<b>Brent R²≈7%、贸易差 R²≈1%</b>，年度均值下影响微弱。② <b>利差越大，日元贬值趋势越明显</b>：合并波纹图中紫线（利差）上行区间与红虚线（USD/JPY）上行区间高度重合；美债10Y（青线）因是利差的"定价锚"，同样呈同向联动。③ r 的符号（利差/美债为正=推升 USD/JPY 即日元贬值）只表示年度联动方向，<b>油价→贸易逆差→日元的传导是结构性逻辑</b>，被 2013(安倍)/2022(联储) 政策利率周期平滑，故年度 R² 小；但 2022 油价破百＋逆差创纪录＋日元急贬同期发生，机制成立。④ 颜色：紫=利差、青=美债10Y、橙=Brent、绿=贸易差、红虚线=USD/JPY。</div>
     <div class="logic-card">
       <div class="logic-title">📖 如何读这张图：r 的符号定方向，R² 定权重</div>
       <div class="logic-grid">
         <div>
-          <div class="logic-rule-h"><span class="badge-neg">r &lt; 0</span> 负号 → 因子推动 <b>日元贬值</b></div>
-          <div class="logic-rule-b">利差 r=−0.81、美债10Y r=−0.59：因子↑ → 每100日元美元价值↓ → 日元更弱。即"利差越大，贬值越明显"。</div>
-          <div class="logic-rule-h" style="margin-top:10px"><span class="badge-pos">r &gt; 0</span> 正号 → 因子推动 <b>日元升值</b></div>
-          <div class="logic-rule-b">贸易差 r=+0.10 的特殊性：贸易差本身为负（逆差），逆差扩大（值更负）→ 汇率值也更低 → <b>仍对应贬值</b>，只是年度层面几乎测不出（见右栏 R²≈1%）。</div>
+          <div class="logic-rule-h"><span class="badge-pos">r &gt; 0</span> 正号 → 因子推动 <b>日元贬值</b>（USD/JPY↑）</div>
+          <div class="logic-rule-b">利差 r≈+0.81、美债10Y r≈+0.59：因子↑ → USD/JPY↑ → 日元更弱。即"利差越大，贬值越明显"。</div>
+          <div class="logic-rule-h" style="margin-top:10px"><span class="badge-neg">r &lt; 0</span> 负号 → 因子推动 <b>日元升值</b>（USD/JPY↓）</div>
+          <div class="logic-rule-b">贸易差 r≈−0.10 的特殊性：贸易差本身为负（逆差），逆差扩大（值更负）→ USD/JPY 反而更高 → <b>仍对应贬值</b>，只是年度层面几乎测不出（见右栏 R²≈1%）。</div>
         </div>
         <div>
           <div class="logic-rule-h"><span class="badge-sq">R² = r²</span> 解释方差% → 影响 <b>有多大</b></div>
@@ -384,14 +372,14 @@
           <div class="logic-rule-b" style="margin-top:8px">⚠ R² 仅反映年度均值下的<b>统计</b>解释力。油价／贸易差的传导是<b>结构性逻辑</b>，被 2013(安倍)/2022(联储) 利率周期平滑；单看 2022 年"油价破百＋逆差创纪录＋日元急贬"同期发生，机制仍成立。</div>
         </div>
       </div>
-      <div class="logic-memo">💡 <b>记忆法：符号定方向（负=贬值、正=升值），R² 定权重（越大越主导）。</b>利差是"又负又大"——既指向贬值，又是最强的那根杠杆。</div>
+      <div class="logic-memo">💡 <b>记忆法：符号定方向（正=USD/JPY↑=贬值、负=USD/JPY↓=升值），R² 定权重（越大越主导）。</b>利差是"又正又大"——既指向贬值，又是最强的那根杠杆。</div>
     </div>
   </div></section>
 
   <!-- ⑧ 因果链 -->
   <section id="causal"><div class="card">
-    <h2><span class="tag">图 ⑧</span>JPY/USD 因果链模型 + 油价→贸易→汇率逻辑链</h2>
-    <p class="lead">左：综合因果链（多因素→汇率）。右：油价如何通过进口/出口成本改变贸易收支，进而传导至每100日元美元价值。</p>
+    <h2><span class="tag">图 ⑧</span>USD/JPY 因果链模型 + 油价→贸易→汇率逻辑链</h2>
+    <p class="lead">左：综合因果链（多因素→汇率）。右：油价如何通过进口/出口成本改变贸易收支，进而传导至 USD/JPY。</p>
     <div class="grid2">
       <div>
         <svg class="diagram" viewBox="0 0 360 470" xmlns="http://www.w3.org/2000/svg">
@@ -406,7 +394,7 @@
           <rect class="n" x="105" y="250" width="150" height="52" rx="9" style="stroke:#d97706"/>
           <text class="nt" x="180" y="272" text-anchor="middle">美元需求↑ / 日元供给↑</text><text class="nl" x="180" y="289" text-anchor="middle">FX flow</text>
           <rect class="n" x="105" y="330" width="150" height="52" rx="9" style="stroke:#dc2626"/>
-          <text class="nt" x="180" y="352" text-anchor="middle">每100日元美元价值↓</text><text class="nl" x="180" y="369" text-anchor="middle">日元贬值</text>
+          <text class="nt" x="180" y="352" text-anchor="middle">USD/JPY↑</text><text class="nl" x="180" y="369" text-anchor="middle">日元贬值</text>
           <rect class="n" x="105" y="410" width="150" height="44" rx="9" style="stroke:#0d9488"/>
           <text class="nt" x="180" y="437" text-anchor="middle">输入型通胀 / 日银响应</text>
           <path d="M180,62 L180,88" stroke="#475569" stroke-width="2" marker-end="url(#a2)"/>
@@ -429,7 +417,7 @@
           <rect class="n" x="100" y="250" width="160" height="52" rx="9" style="stroke:#dc2626"/>
           <text class="nt" x="180" y="272" text-anchor="middle">日元抛压 / 需求↓</text><text class="nl" x="180" y="289" text-anchor="middle">结构性弱势</text>
           <rect class="n" x="100" y="330" width="160" height="52" rx="9" style="stroke:#dc2626"/>
-          <text class="nt" x="180" y="352" text-anchor="middle">每100日元美元价值↓</text><text class="nl" x="180" y="369" text-anchor="middle">日元贬值</text>
+          <text class="nt" x="180" y="352" text-anchor="middle">USD/JPY↑</text><text class="nl" x="180" y="369" text-anchor="middle">日元贬值</text>
           <rect class="n" x="100" y="410" width="160" height="44" rx="9" style="stroke:#0d9488"/>
           <text class="nt" x="180" y="437" text-anchor="middle">出口竞争力 ↔ 通胀反馈</text>
           <path d="M180,62 L180,88" stroke="#475569" stroke-width="2" marker-end="url(#a3)"/>
@@ -442,13 +430,13 @@
         </svg>
       </div>
     </div>
-    <div class="takeaway">📌 油价通过「进口成本→贸易逆差→日元结构性抛压」构成 <b>慢变量驱动</b>；而利差/Carry Trade 是 <b>快变量驱动</b>。两者叠加决定每100日元美元价值方向，背离时产生波动。</div>
+    <div class="takeaway">📌 油价通过「进口成本→贸易逆差→日元结构性抛压」构成 <b>慢变量驱动</b>；而利差/Carry Trade 是 <b>快变量驱动</b>。两者叠加决定 USD/JPY 方向，背离时产生波动。</div>
   </div></section>
 
   <!-- ⑨ 驱动网络 + 影响% -->
   <section id="network"><div class="card">
     <h2><span class="tag">图 ⑨</span>日元汇率驱动全景动态网络图（含影响权重 %）</h2>
-    <p class="lead">综合宏观驱动网络：中心为每100日元美元价值，外层为驱动因子节点，连线粗细=影响强度，颜色=影响方向（红=推升美元/压低该数值即日元贬值，蓝=反向即日元升值）。<b>权重已与图⑦相关系数 R² 对齐，并消除重复计数</b>：美联储政策、日本央行政策与套息交易共同构成「美日利差」这一近端驱动，故合并为单一节点（不再各自独立计权）。另将<b>美股（标普500）/ 日股（日经225）作为「其他」观察项</b>纳入（数据见下方卡片）——其原始相关性强，但属利差/风险偏好的共线代理，故仅作残差再切分、不重复计权。悬浮节点可高亮其链路。</p>
+    <p class="lead">综合宏观驱动网络：中心为 USD/JPY（1美元兑日元），外层为驱动因子节点，连线粗细=影响强度，颜色=影响方向（红=推升 USD/JPY 即日元贬值，蓝=压低 USD/JPY 即日元升值）。<b>权重已与图⑦相关系数 R² 对齐，并消除重复计数</b>：美联储政策、日本央行政策与套息交易共同构成「美日利差」这一近端驱动，故合并为单一节点（不再各自独立计权）。另将<b>美股（标普500）/ 日股（日经225）作为「其他」观察项</b>纳入（数据见下方卡片）——其原始相关性强，但属利差/风险偏好的共线代理，故仅作残差再切分、不重复计权。悬浮节点可高亮其链路。</p>
     <svg class="diagram" viewBox="0 0 820 620" id="netSvg" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <marker id="nr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#dc2626"/></marker>
@@ -457,36 +445,36 @@
       </defs>
       <g id="edges"></g>
       <circle cx="410" cy="280" r="58" fill="url(#core)"/>
-      <text x="410" y="274" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">JPY/USD</text>
-      <text x="410" y="293" text-anchor="middle" font-size="10.5" fill="#c7d2fe">每100日元美元</text>
+      <text x="410" y="274" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">USD/JPY</text>
+      <text x="410" y="293" text-anchor="middle" font-size="10.5" fill="#c7d2fe">1美元兑日元</text>
       <g id="nodes"></g>
     </svg>
     <div class="legend">
-      <span><span class="dot" style="background:#dc2626"></span>推升美元 / 日元贬值（数值↓）</span>
-      <span><span class="dot" style="background:#2563eb"></span>压低美元 / 日元升值（数值↑）</span>
+      <span><span class="dot" style="background:#dc2626"></span>推升 USD/JPY / 日元贬值（数值↑）</span>
+      <span><span class="dot" style="background:#2563eb"></span>压低 USD/JPY / 日元升值（数值↓）</span>
       <span>线宽 = 影响强度</span>
     </div>
     <div class="infer-banner">⚠️ 推论 / 非官方数据：下列「影响权重 %」为基于图⑦实证相关系数 R² 与传导逻辑校准的<b>示意性估算</b>，并非计量回归结果，严禁当作事实数值引用。<span class="sub">Source: 估算（非官方）— 权重已与图⑦ R² 对齐（利差≈66%→58%、美债≈34%→12%、Brent≈7%→8%、贸易≈1%→3%），并将美联储/利差/套息合并为单一「美日利差」节点以消除重复计数；美股/日股列入「其他」观察项（合计 5%），其高相关为利差/风险偏好的共线代理，未重复计入主权重；合计 100% 仅作可视化比例。</span></div>
     <div class="weighter" id="weighter"></div>
     <div class="obs-card">
       <div style="font-weight:800;color:var(--ink);margin-bottom:4px">其他观察项：美股 / 日股 与日元联动</div>
-      <p class="note" style="margin:0 0 8px">将美股（标普500）与日股（日经225）年度均值与 JPY/USD 做 Pearson 相关（方法同图⑦）：<b>S&amp;P 500 vs JPY/USD r≈−0.85（R²≈73%）</b>、<b>日经 225 vs JPY/USD r≈−0.86（R²≈74%）</b>；两者与 USD/JPY 均强正相关（r≈+0.91 / +0.92）。即「风险偏好上行 → 股市上涨 + 日元走弱」的套息 / risk-on 同涨同跌 regime。</p>
+      <p class="note" style="margin:0 0 8px">将美股（标普500）与日股（日经225）年度均值与 USD/JPY 做 Pearson 相关（方法同图⑦）：<b>S&amp;P 500 vs USD/JPY r≈+0.91（R²≈83%）</b>、<b>日经 225 vs USD/JPY r≈+0.92（R²≈85%）</b>——强正相关。即「风险偏好上行 → 股市上涨 + 日元走弱」的套息 / risk-on 同涨同跌 regime。</p>
       <div style="max-height:190px;overflow:auto">
         <table class="heat-table" style="font-size:11.5px;margin:0">
           <thead><tr><th style="width:72px">年份</th><th>S&amp;P 500（年均）</th><th>日经 225（年均）</th></tr></thead>
           <tbody id="stockObs"></tbody>
         </table>
       </div>
-      <div class="infer-note" style="margin-top:8px">⚠ 股市与日元的原始 R²（≈73–74%）很高，但属「美日利差（套息）+ 风险偏好」的<b>共线代理</b>，并非独立因果通道；故在图⑨权重中仅作为「其他」残差的再切分（美股 3% + 日股 2%），边际独立贡献小，未重复计入主权重（利差 58% + 风险偏好 12% 已覆盖该 regime）。</div>
+      <div class="infer-note" style="margin-top:8px">⚠ 股市与日元的原始 R²（≈83–85%）很高，但属「美日利差（套息）+ 风险偏好」的<b>共线代理</b>，并非独立因果通道；故在图⑨权重中仅作为「其他」残差的再切分（美股 3% + 日股 2%），边际独立贡献小，未重复计入主权重（利差 58% + 风险偏好 12% 已覆盖该 regime）。</div>
     </div>
-    <div class="infer-banner">⚠️ 推论 / 非官方数据：下列「2025–2026 未来推演框架」为基于当前政策路径的<b>假设性情景推演</b>，非官方预测，实际汇率取决于美联储 / 日本银行未来决策与市场。<span class="sub">Source: 分析推演（非官方）— 若美联储降息 + 日银渐进加息 → 利差收敛成为主逻辑，JPY/USD 低位回升指向 0.67–0.73（USD/JPY≈137–149）；油价再起+逆差扩大则构成贬值缓冲；风险情景为套息大规模平仓引发日元 V 型急升。</span></div>
+    <div class="infer-banner">⚠️ 推论 / 非官方数据：下列「2025–2026 未来推演框架」为基于当前政策路径的<b>假设性情景推演</b>，非官方预测，实际汇率取决于美联储 / 日本银行未来决策与市场。<span class="sub">Source: 分析推演（非官方）— 若美联储降息 + 日银渐进加息 → 利差收敛成为主逻辑，USD/JPY 高位回落指向 137–149；油价再起+逆差扩大则构成贬值缓冲；风险情景为套息大规模平仓引发日元 V 型急升。</span></div>
   </div></section>
 
   <!-- ⑩ 情景模拟器 -->
   <section id="sim"><div class="card">
-    <h2><span class="tag">图 ⑩</span>日元汇率情景模拟器（拖动因子看 JPY/USD 区间）</h2>
-    <p class="lead">基于图⑨的影响权重与历史敏感性，构建透明的线性模型：以 2024 实际值（每100日元 0.66 美元）为基准，各因子相对基准的偏离按敏感性系数叠加，得出模拟的 JPY/USD 及估算区间。拖动滑块即时更新。</p>
-    <div class="infer-banner">⚠️ 推论 / 非官方数据：本模拟器所有输出（JPY/USD 数值、USD/JPY、贡献分解）均为<b>情景推演</b>，由估算的敏感性系数 β 计算得出，<b>非官方汇率预测</b>。请以图①官方年度均值为事实基准。<span class="sub">Source: 模型推演（非官方）— 模型 JPY/USD = 0.66 + Σ βᵢ·(因子ᵢ−基准ᵢ)，β 为示意性估计；灰色区间=±0.04 模型不确定性。</span></div>
+    <h2><span class="tag">图 ⑩</span>日元汇率情景模拟器（拖动因子看 USD/JPY 区间）</h2>
+    <p class="lead">基于图⑨的影响权重与历史敏感性，构建透明的线性模型：以 2024 实际值（USD/JPY ≈151.5）为基准，各因子相对基准的偏离按敏感性系数叠加，得出模拟的 USD/JPY 及估算区间。拖动滑块即时更新。</p>
+    <div class="infer-banner">⚠️ 推论 / 非官方数据：本模拟器所有输出（USD/JPY 数值、每100日元换算、贡献分解）均为<b>情景推演</b>，由估算的敏感性系数 β 计算得出，<b>非官方汇率预测</b>。请以图①官方年度均值为事实基准。<span class="sub">Source: 模型推演（非官方）— 模型内部以「每100日元美元价值」线性推演（0.66 + Σ βᵢ·(因子ᵢ−基准ᵢ)），展示时换算为 USD/JPY = 100 ÷ 内部值；β 为示意性估计；灰色区间=±0.04（内部值）模型不确定性。</span></div>
     <div class="sim-grid">
       <div>
         <div class="sld hl"><label>美日利差 (Fed−BOJ) <span class="v"><span id="simDiffV">5.3</span>%</span></label>
@@ -502,20 +490,32 @@
         <div style="margin-top:10px"><button class="sim-reset" id="simReset">↺ 重置为 2024 基准</button></div>
       </div>
       <div>
-        <div class="result-big" id="simVal">0.660</div>
-        <div class="result-sub">美元 / 100日元　|　隐含 USD/JPY ≈ <b id="simUsdjpy">151.5</b></div>
+        <div class="result-big" id="simVal">151.5</div>
+        <div class="result-sub">日元 / 美元 (USD/JPY)　|　换算 每100日元 ≈ <b id="simUsdjpy">0.660</b> 美元</div>
         <div class="gauge" id="gauge">
           <div class="band" id="simBand"></div>
           <div class="mk ref" id="mkRef" title="2024 实际"></div>
           <div class="mk" id="mkSim"></div>
-          <div class="lab" style="left:2%">强日元 1.25</div>
-          <div class="lab" style="left:50%">≈0.90</div>
-          <div class="lab" style="left:98%">弱日元 0.55</div>
+          <div class="lab" style="left:2%">强日元 80</div>
+          <div class="lab" style="left:50%">≈111</div>
+          <div class="lab" style="left:98%">弱日元 182</div>
         </div>
         <div class="contrib" id="simContrib"></div>
-        <div class="note" style="margin-top:12px">模型：JPY/USD = 0.66 + Σ βᵢ·(因子ᵢ−基准ᵢ)；β(利差)=−0.10/pp，β(美债)=−0.04/pp，β(Brent)=−0.0015/$，β(贸易)=+0.004/万亿¥，β(风险)=−0.0015/点。灰色区间=±0.04 模型不确定性。仅供框架推演，非预测。</div>
+        <div class="note" style="margin-top:12px">模型（内部变量=每100日元美元价值）：0.66 + Σ βᵢ·(因子ᵢ−基准ᵢ)，展示为 USD/JPY = 100 ÷ 内部值；β(利差)=−0.10/pp，β(美债)=−0.04/pp，β(Brent)=−0.0015/$，β(贸易)=+0.004/万亿¥，β(风险)=−0.0015/点。灰色区间=±0.04（内部值）模型不确定性。仅供框架推演，非预测。</div>
       </div>
     </div>
+  </div></section>
+
+  <!-- 实时官方数据追踪 -->
+  <section id="live"><div class="card">
+    <h2 style="margin-top:0;font-size:16px">🌐 实时官方数据追踪 <span style="font-size:11px;color:#64748b;font-weight:400">Live Official Data Tracker</span></h2>
+    <div class="live-note">数据基于美 / 日 / 中官方来源：美国、日本经 <b>FRED（圣路易斯联储）</b>，中国经 <b>World Bank Open Data</b>（中国国家统计局、海关总署）。每张卡片均<b>标注来源</b>。汇率主源为日本银行（USD/JPY），不可达时回退公开市场汇率；利率 / 贸易差均来自 FRED 官方序列。<b>无需 API Key</b>。</div>
+    <div class="fred-key-row">
+      <button id="liveRefresh" class="ver-update-btn" onclick="refreshLive()">🔄 刷新实时数据</button>
+    </div>
+    <div id="liveGrid" class="live-grid"></div>
+    <div id="liveStatus" class="live-status"></div>
+    <div class="live-note" style="margin-top:10px">注：上方历史走势图（①–⑩）为<b>静态基线</b>（2010–2026 官方年度均值），本模块为在其之上追加的实时追踪层。实时数据由服务端官方快照（同域 <code>live-data.json</code>）提供，点击「刷新」经公共代理尽力获取最新。</div>
   </div></section>
 
   <!-- 数据口径与来源 -->
@@ -524,14 +524,14 @@
     <p class="lead">本页所有历史数值均来自公开官方/权威机构，实时计算项基于官方输入生成。2026 年为上半年实际均值（非全年官方均值，已单独标注）。</p>
     <table class="heat-table" style="font-size:12.5px">
       <tr><th style="width:110px">因子</th><th style="width:200px">官方来源</th><th>口径与推算逻辑</th><th style="width:110px">性质</th></tr>
-      <tr><td style="text-align:left;background:#f8fafc">USD/JPY<br><small>（转 JPY/USD）</small></td><td style="text-align:left">FRED DEXJPUS</td><td style="text-align:left">美联储经济数据库美元兑日元即期汇率年度均值；本页取 100/USDJPY 换算为「每100日元美元价值」。</td><td style="background:#dcfce7;color:#15803d;font-weight:700">官方</td></tr>
+      <tr><td style="text-align:left;background:#f8fafc">USD/JPY<br><small>（1美元兑日元）</small></td><td style="text-align:left">FRED DEXJPUS</td><td style="text-align:left">美联储经济数据库美元兑日元即期汇率年度均值；本页直接以 USD/JPY（1美元兑多少日元）呈现，数值越高=日元越弱。</td><td style="background:#dcfce7;color:#15803d;font-weight:700">官方</td></tr>
       <tr><td style="text-align:left;background:#f8fafc">美联储利率</td><td style="text-align:left">FRED FEDFUNDS / 美联储</td><td style="text-align:left">美国联邦基金有效利率或目标区间中点年度均值。</td><td style="background:#dcfce7;color:#15803d;font-weight:700">官方</td></tr>
       <tr><td style="text-align:left;background:#f8fafc">日本央行利率</td><td style="text-align:left">日本银行</td><td style="text-align:left">日本央行政策利率（无担保隔夜拆借利率目标）年度均值。</td><td style="background:#dcfce7;color:#15803d;font-weight:700">官方</td></tr>
       <tr><td style="text-align:left;background:#f8fafc">美日利差</td><td style="text-align:left">由上述两者推算</td><td style="text-align:left">利差 = 美联储利率 − 日本央行利率。非直接官方发布，但基于两个官方利率计算，本页实时生成。</td><td style="background:#fef9c3;color:#a16207;font-weight:700">官方输入推算</td></tr>
       <tr><td style="text-align:left;background:#f8fafc">日本贸易差额</td><td style="text-align:left">日本财务省 / 海关贸易统计</td><td style="text-align:left">日本商品贸易收支年度总额（万亿日元），负值=逆差。</td><td style="background:#dcfce7;color:#15803d;font-weight:700">官方</td></tr>
       <tr><td style="text-align:left;background:#f8fafc">Brent 原油</td><td style="text-align:left">EIA / ICE / 世界银行商品数据</td><td style="text-align:left">布伦特原油现货价格年度均值（美元/桶）。</td><td style="background:#dcfce7;color:#15803d;font-weight:700">官方</td></tr>
       <tr><td style="text-align:left;background:#f8fafc">美国 10Y 国债收益率</td><td style="text-align:left">FRED DGS10</td><td style="text-align:left">美国 10 年期国债恒定到期收益率年度均值。</td><td style="background:#dcfce7;color:#15803d;font-weight:700">官方</td></tr>
-      <tr><td style="text-align:left;background:#f8fafc">美股 / 日股</td><td style="text-align:left">Yahoo Finance 聚合（标普 500 / 大阪交易所·日经 225）</td><td style="text-align:left">标普 500 与日经 225 指数年度均值（点）；2026 为上半年实际均值。用作图⑨「其他」观察项，与 JPY/USD 的 Pearson 相关为实时计算（S&amp;P500 r≈−0.85、日经 r≈−0.86）。</td><td style="background:#dcfce7;color:#15803d;font-weight:700">官方</td></tr>
+      <tr><td style="text-align:left;background:#f8fafc">美股 / 日股</td><td style="text-align:left">Yahoo Finance 聚合（标普 500 / 大阪交易所·日经 225）</td><td style="text-align:left">标普 500 与日经 225 指数年度均值（点）；2026 为上半年实际均值。用作图⑨「其他」观察项，与 USD/JPY 的 Pearson 相关为实时计算（S&amp;P500 r≈+0.91、日经 r≈+0.92）。</td><td style="background:#dcfce7;color:#15803d;font-weight:700">官方</td></tr>
       <tr><td style="text-align:left;background:#f8fafc">2026 年数据</td><td style="text-align:left">上半年实际均值</td><td style="text-align:left">当前时点为 2026-07-20，全年官方均值尚未发布。2026 点位采用上半年（1–6 月）市场实际均值，已在图①标为橙色"上半年实际"。</td><td style="background:#ffedd5;color:#c2410c;font-weight:700">上半年实际</td></tr>
       <tr><td style="text-align:left;background:#f8fafc">相关性 / R²</td><td style="text-align:left">由本页实时计算</td><td style="text-align:left">基于 2010–2024 年度官方数据计算 Pearson 相关系数 r 与 R²，未使用主观估计。</td><td style="background:#e0f2fe;color:#0369a1;font-weight:700">实时计算</td></tr>
       <tr><td style="text-align:left;background:#f8fafc">影响权重 % / 情景模拟器</td><td style="text-align:left">分析框架（非官方）</td><td style="text-align:left">图⑨权重与图⑩系数基于历史弹性、相关性强弱与传导逻辑的主观估算，用于搭建宏观推演框架，非计量回归结果。</td><td style="background:#ffe4e6;color:#be123c;font-weight:700">分析推演</td></tr>
@@ -561,7 +561,7 @@ const ust   =[3.3,2.4,1.8,2.9,2.2,2.3,1.8,2.3,2.9,2.1,0.9,1.5,3.9,4.0,4.3,4.2,4.
 const sp500 =[1140.0,1267.6,1379.4,1643.8,1931.4,2061.1,2094.7,2449.1,2746.2,2913.4,3217.9,4273.4,4098.5,4283.7,5428.2,6216.9,7046.8];
 const nikkei=[10011.4,9425.4,9102.6,13577.9,15460.4,19203.8,16920.5,20209.0,22311.9,21697.2,22703.0,28836.5,27257.8,30716.6,38396.7,41794.2,58772.8];
 
-// —— 派生：JPY/USD（每100日元美元价值）与利差 ——
+// —— 派生：jpyusd（每100日元美元价值，仅供图⑩模拟器内部使用）与利差；全站展示口径为 usdjpy ——
 const jpyusd = usdjpy.map(v=>100/v);
 const diff   = fed.map((f,i)=>+(f - boj[i]).toFixed(2));
 const idx = arr => arr.map(v=>+(v/arr[0]*100).toFixed(1));   // 指数化 2010=100
@@ -573,15 +573,15 @@ const grid={color:'#eef2f7'};
 Chart.defaults.font.family='-apple-system,Segoe UI,PingFang SC,Microsoft YaHei,sans-serif';
 Chart.defaults.color='#5b6b7b';
 
-// ① 走势（JPY/USD）
+// ① 走势（USD/JPY，1美元兑日元）
 new Chart(document.getElementById('cTrend'),{type:'line',
-  data:{labels:years,datasets:[{label:'美元 / 100日元',data:jpyusd,borderColor:C.blue,borderWidth:2.5,
+  data:{labels:years,datasets:[{label:'USD/JPY (日元/美元)',data:usdjpy,borderColor:C.blue,borderWidth:2.5,
     fill:true,backgroundColor:'rgba(37,99,235,.07)',tension:.3,pointRadius:3,
     pointBackgroundColor:years.map(y=>isHist(y)?'#2563eb':(isH1(y)?'#d97706':'#94a3b8'))}]},
   options:{maintainAspectRatio:false,plugins:{legend:{display:false},
-    tooltip:{callbacks:{label:(c)=>'美元/100日元: '+c.parsed.y.toFixed(4),
+    tooltip:{callbacks:{label:(c)=>'USD/JPY: '+c.parsed.y.toFixed(2)+' 日元/美元',
       afterLabel:(c)=>isHist(c.label)?'官方年度均值':(isH1(c.label)?'2026上半年实际':'推演')}}},
-    scales:{y:{grid,title:{display:true,text:'美元 / 100日元（↓=日元贬值）'}},x:{grid:{display:false}}}}});
+    scales:{y:{grid,title:{display:true,text:'日元 / 美元 USD/JPY（↑=日元贬值）'}},x:{grid:{display:false}}}}});
 
 // ② 利差叠加 + 波纹对比（利差改用「实际 %」画在利率轴上，避免原指数 2010=100 放大 ~1471 倍超出可视范围）
 new Chart(document.getElementById('cRate'),{
@@ -589,18 +589,18 @@ new Chart(document.getElementById('cRate'),{
     {type:'bar',label:'美联储利率 %',data:fed,backgroundColor:C.blue,yAxisID:'y',order:4},
     {type:'bar',label:'日本央行利率 %',data:boj,backgroundColor:C.red,yAxisID:'y',order:4},
     {type:'line',label:'利差 %(Fed−BOJ)',data:diff,borderColor:C.purple,borderWidth:3,yAxisID:'y',tension:.3,pointRadius:2,order:1,fill:true,backgroundColor:'rgba(124,58,237,.10)'},
-    {type:'line',label:'汇率 美元/100¥',data:jpyusd,borderColor:C.amber,borderWidth:2.5,yAxisID:'y1',tension:.3,pointRadius:2,borderDash:[6,4],order:2}
+    {type:'line',label:'汇率 USD/JPY',data:usdjpy,borderColor:C.amber,borderWidth:2.5,yAxisID:'y1',tension:.3,pointRadius:2,borderDash:[6,4],order:2}
   ]},
   options:{maintainAspectRatio:false,
     plugins:{legend:{position:'top'},
       tooltip:{callbacks:{label:(c)=>{
         const i=c.dataIndex;
         if(c.dataset.label.includes('利差')) return '利差(实际): '+diff[i].toFixed(2)+'%';
-        if(c.dataset.label.includes('汇率')) return '汇率(实际): '+jpyusd[i].toFixed(4)+' 美元/100¥';
+        if(c.dataset.label.includes('汇率')) return '汇率(实际): '+usdjpy[i].toFixed(2)+' 日元/美元';
         return c.dataset.label+': '+c.parsed.y+'%';
       },afterLabel:(c)=>isHist(c.label)?'官方年度均值':(isH1(c.label)?'2026上半年实际':'推演')}}},
     scales:{y:{position:'left',grid,min:0,max:7,title:{display:true,text:'政策利率 / 利差 %'}},
-      y1:{position:'right',grid:{display:false},min:0.5,max:1.3,title:{display:true,text:'美元 / 100日元（↓=日元贬值）'}},
+      y1:{position:'right',grid:{display:false},min:70,max:170,title:{display:true,text:'日元 / 美元 USD/JPY（↑=日元贬值）'}},
       x:{grid:{display:false}}}}});
 
 // ③ 贸易差
@@ -642,16 +642,16 @@ const tagOf=r=>{ const a=Math.abs(r);
   if(a>=0.15) return r<0?'弱负':'弱正';
   return '近无关'; };
 
-// 左侧：各因子与 JPY/USD 的相关系数 r 与解释方差 R²（按 |r| 排序）
+// 左侧：各因子与 USD/JPY 的相关系数 r 与解释方差 R²（按 |r| 排序）
 const factors=['利差','美债10Y','Brent','贸易差'];
-const corrRows=factors.map(f=>({f,r:pearson(fSeries[f],jpyusd)})).sort((a,b)=>Math.abs(b.r)-Math.abs(a.r));
+const corrRows=factors.map(f=>({f,r:pearson(fSeries[f],usdjpy)})).sort((a,b)=>Math.abs(b.r)-Math.abs(a.r));
 const maxR2=Math.max(...corrRows.map(d=>d.r*d.r));
 const tbl=document.getElementById('heatTable');
-let html='<tr><th>因子</th><th>r<br><span style="font-weight:400;font-size:10px">vs 每100日元</span></th><th>R²<br><span style="font-weight:400;font-size:10px">解释方差%</span></th><th>理论方向</th></tr>';
+let html='<tr><th>因子</th><th>r<br><span style="font-weight:400;font-size:10px">vs USD/JPY</span></th><th>R²<br><span style="font-weight:400;font-size:10px">解释方差%</span></th><th>理论方向</th></tr>';
 corrRows.forEach(({f,r})=>{
   const r2=r*r, pct=Math.round(r2*100);
   const col=heatColor(r), txt=Math.abs(r)>=0.4?'#fff':'#1f2a37';
-  const arrow=r<-0.15?'↓ 贬值':(r>0.15?'↑ 升值':'→ 弱');
+  const arrow=r>0.15?'↑ 贬值':(r<-0.15?'↓ 升值':'→ 弱');
   const r2cell='<div style="font-weight:800;color:#b91c1c">'+pct+'%</div>'+
     '<div style="height:5px;background:#eef2f7;border-radius:3px;margin-top:3px;overflow:hidden">'+
     '<i style="display:block;height:100%;width:'+pct+'%;background:#dc2626"></i></div>';
@@ -684,17 +684,17 @@ tbl.innerHTML=html;
 // 右侧：四个因子 + 汇率 合并波纹（区间归一化 0–100，便于同图比较形态）
 const norm=arr=>{ const mn=Math.min(...arr), mx=Math.max(...arr); return arr.map(v=> mx===mn?50:+(((v-mn)/(mx-mn))*100).toFixed(1)); };
 const dynColors={'利差':C.purple,'美债10Y':C.teal,'Brent':C.amber,'贸易差':C.green};
-const fxN=norm(jpyusd);
+const fxN=norm(usdjpy);
 new Chart(document.getElementById('cDyn'),{type:'line',
   data:{labels:years,datasets:[
     ...factors.map(f=>({label:f,data:norm(fSeries[f]),_raw:fSeries[f],borderColor:dynColors[f],borderWidth:2.2,tension:.3,pointRadius:1.5})),
-    {label:'汇率·每100日元(JPY/USD)',data:fxN,_raw:jpyusd,borderColor:C.red,borderWidth:2.5,tension:.3,pointRadius:1.5,borderDash:[6,4]}
+    {label:'汇率·USD/JPY(1美元兑日元)',data:fxN,_raw:usdjpy,borderColor:C.red,borderWidth:2.5,tension:.3,pointRadius:1.5,borderDash:[6,4]}
   ]},
   options:{maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11}}},
     tooltip:{callbacks:{afterLabel:(c)=>{
       const i=c.dataIndex, raw=c.dataset._raw?c.dataset._raw[i]:null;
       let v='';
-      if(c.dataset.label.includes('汇率')) v='汇率: '+raw.toFixed(4)+' 美元/100¥';
+      if(c.dataset.label.includes('汇率')) v='汇率: '+raw.toFixed(2)+' 日元/美元';
       else if(c.dataset.label==='利差') v='利差: '+raw.toFixed(2)+'%';
       else if(c.dataset.label==='美债10Y') v='美债10Y: '+raw.toFixed(2)+'%';
       else if(c.dataset.label==='Brent') v='Brent: $'+raw.toFixed(1)+'/bbl';
@@ -706,10 +706,10 @@ new Chart(document.getElementById('cDyn'),{type:'line',
 
 // 右侧说明：各因子相关系数 + 因果方向（保留解释）
 const dirMap={
-  '利差':'<b>美日利差↑ → 美元资产更吸引 → 抛日元买美元 → 每100日元美元价值↓（日元贬值）。</b><br><span style="color:#16a34a">验证：利差越大，贬值趋势越明显。</span>2013–2015 利差从 0.35%→0.60%，汇率从 1.25→0.83；2022–2024 利差从 4.70%→5.30%，汇率从 0.76→0.66。紫线上行区间与红虚线下行区间高度重合。',
-  '美债10Y':'<b>美债收益率↑ → 美日利差走阔 → 日元贬值压力↑ → 该数值↓。</b><br>美债10Y 是利差的"美元端定价锚"，与汇率呈中等负相关。2022 美债从 1.5%→3.9%，汇率从 0.91→0.76。',
-  'Brent':'<b>油价↑ → 日本进口能源成本↑ → 贸易逆差扩大 → 结构性日元贬值。</b><br>理论方向为负，但年度均值相关性偏弱（因 2013/2022 政策利率为汇率主导，油价为间接通道）；重点看 2022：油价破百+逆差创纪录+日元急贬同步发生。',
-  '贸易差':'<b>贸易逆差扩大（值更负）→ 需卖出日元换美元支付进口 → 日元贬值。</b><br>理论方向为负，年度均值相关性近零（被政策周期平滑）；看 2022：逆差 -20万亿¥ 与日元急贬同期。'
+  '利差':'<b>美日利差↑ → 美元资产更吸引 → 抛日元买美元 → USD/JPY↑（日元贬值）。</b><br><span style="color:#16a34a">验证：利差越大，贬值趋势越明显。</span>2013–2015 利差从 0.35%→0.60%，USD/JPY 从 97.6→121.1；2022–2024 利差从 4.70%→5.30%，USD/JPY 从 131.5→151.5。紫线上行区间与红虚线上行区间高度重合。',
+  '美债10Y':'<b>美债收益率↑ → 美日利差走阔 → 日元贬值压力↑ → USD/JPY↑。</b><br>美债10Y 是利差的"美元端定价锚"，与 USD/JPY 呈中等正相关。2022 美债从 1.5%→3.9%，USD/JPY 从 109.8→131.5。',
+  'Brent':'<b>油价↑ → 日本进口能源成本↑ → 贸易逆差扩大 → 结构性日元贬值（USD/JPY↑）。</b><br>理论方向为正，但年度均值相关性偏弱（因 2013/2022 政策利率为汇率主导，油价为间接通道）；重点看 2022：油价破百+逆差创纪录+日元急贬同步发生。',
+  '贸易差':'<b>贸易逆差扩大（值更负）→ 需卖出日元换美元支付进口 → 日元贬值（USD/JPY↑）。</b><br>理论方向为负（逆差越深 USD/JPY 越高），年度均值相关性近零（被政策周期平滑）；看 2022：逆差 -20万亿¥ 与日元急贬同期。'
 };
 document.getElementById('dynInfo').innerHTML=corrRows.map(({f,r})=>{
   const col=heatColor(r), txt=Math.abs(r)>=0.4?'#fff':'#1f2a37';
@@ -726,8 +726,8 @@ const netNodes=[
   {id:'brent', label:'Brent油价↑', impact:8, x:690,y:300, r:42, col:C.amber, blue:false},
   {id:'trade', label:'贸易逆差', impact:3, x:600,y:470, r:40, col:C.red, blue:false},
   {id:'risk',  label:'风险偏好↓', sub:'(避险买日元)', impact:12, x:200,y:300, r:46, col:C.gray, blue:true},
-  {id:'sp',    label:'美股 S&P500', sub:'观察 R²≈73%', impact:3, x:150,y:500, r:38, col:'#7c3aed', blue:false},
-  {id:'nk',    label:'日股 日经225', sub:'观察 R²≈74%', impact:2, x:340,y:540, r:36, col:'#db2777', blue:false},
+  {id:'sp',    label:'美股 S&P500', sub:'观察 R²≈83%', impact:3, x:150,y:500, r:38, col:'#7c3aed', blue:false},
+  {id:'nk',    label:'日股 日经225', sub:'观察 R²≈85%', impact:2, x:340,y:540, r:36, col:'#db2777', blue:false},
   {id:'resid', label:'其他', sub:'(干预/仓位/估值)', impact:2, x:520,y:500, r:34, col:'#94a3b8', blue:false},
   {id:'demand',label:'美元需求↑', impact:100,x:410,y:440,r:48, col:C.blue, blue:false}
 ];
@@ -825,9 +825,9 @@ function renderSim(){
     sEl(vid).textContent = (key==='trade')?fmtTrade(v):v;
   });
   const {val, contribs}=computeSim();
-  sEl('simVal').textContent=val.toFixed(3);
+  sEl('simVal').textContent=(100/val).toFixed(1);
   sEl('simVal').style.color = val<REF ? C.red : (val>REF?C.green:C.ink);
-  sEl('simUsdjpy').textContent=(100/val).toFixed(1);
+  sEl('simUsdjpy').textContent=val.toFixed(3);
   // gauge marker（左=强日元1.25，右=弱日元0.55）
   const posPct=(v)=>(SIM_MAX - v)/(SIM_MAX - SIM_MIN)*100;
   sEl('mkSim').style.left=posPct(val)+'%';
@@ -857,6 +857,7 @@ renderSim();
 <script>
 // ===== 顶栏版本号 + 更新记录 =====
 var VER_LOGS = [
+  {version:"Ver 1.8", date:"2026-07-25", desc:"全站汇率口径调整为 USD/JPY（1美元兑多少日元，数值越高=日元越弱）；实时追踪模块缩小并移至「各因子数值来源与官方依据」之前"},
   {version:"Ver 1.7", date:"2026-07-25", desc:"实时模块重构：免 FRED Key，改读同域官方快照 live-data.json（无 CORS）；汇率主源日本银行、兜底公开市场汇率；10Y/联邦基金/日利率/贸易差均来自 FRED；新增「刷新实时数据」按钮"},
   {version:"Ver 1.6", date:"2026-07-25", desc:"实时汇率卡片统一为「每100日元美元价值」(美元/100¥) 口径，与静态图表一致"},
   {version:"Ver 1.5", date:"2026-07-25", desc:"门禁加固：addEventListener 兜底绑定；Chart.js 增加 cdnjs 备用源（防 jsdelivr 在部分网络不可达导致页面卡死）"},
@@ -890,7 +891,7 @@ function toggleVerLog(){
   var SNAP = 'live-data.json';
   var groups = {
     global: {name:'全球 · 汇率 / 大宗', items:[
-      {id:'DEXJPUS',          label:'JPY/USD 汇率（每100日元）', unit:'美元/100¥', src:'日本银行 Bank of Japan', conv:'jpy100', dec:4},
+      {id:'DEXJPUS',          label:'USD/JPY 汇率（1美元兑日元）', unit:'日元/美元', src:'日本银行 Bank of Japan', scale:1, dec:2},
       {id:'DCOILBRENTEU',     label:'Brent 原油',     unit:'美元/桶', src:'美国能源署 EIA (via FRED)',       scale:1,    dec:2}
     ]},
     us: {name:'美国 United States', items:[
