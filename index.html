@@ -154,6 +154,26 @@
   .ver-log-date{color:#555;min-width:130px;font-family:monospace}
   .ver-log-desc{color:#334155}
   .ver-log-empty{padding:18px;text-align:center;color:#999;font-size:13px}
+  /* 实时官方数据追踪 (ver.004) */
+  .live-note{font-size:12.5px;color:#64748b;line-height:1.6;background:#f8fafc;border:1px solid var(--line);
+    border-radius:10px;padding:10px 14px;margin:10px 0}
+  .live-note b{color:#334155}
+  .fred-key-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px}
+  .fred-key-row label{font-size:13px;font-weight:600;color:#334155}
+  .fred-key-row input{flex:1;min-width:240px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px}
+  .fred-key-row a{font-size:12px;color:#2563eb;white-space:nowrap}
+  .fred-key-status{font-size:12px;color:#16a34a;font-weight:600}
+  .live-grid{margin-top:14px;display:flex;flex-direction:column;gap:16px}
+  .live-group-name{font-size:13px;font-weight:700;color:#1e3a8a;margin-bottom:8px;border-left:4px solid #2563eb;padding-left:8px}
+  .live-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+  .live-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+  .live-card.ok{border-left:4px solid #16a34a}
+  .live-card.err{border-left:4px solid #ef4444;background:#fef2f2}
+  .live-label{font-size:13px;font-weight:600;color:#1f2a37}
+  .live-val{font-size:24px;font-weight:700;color:#0f172a;margin:6px 0 2px;font-variant-numeric:tabular-nums}
+  .live-date{font-size:11.5px;color:#64748b;margin-bottom:4px}
+  .live-src{font-size:11px;color:#94a3b8;line-height:1.4}
+  .live-status{font-size:12px;color:#475569;margin-top:12px;font-family:monospace}
 </style>
 </head>
 <body>
@@ -171,7 +191,7 @@
 <header>
   <div class="header-bar">
     <div>
-      <h1>日元兑美元宏观驱动全景 <span class="ver-badge">版本 <b>Ver 1.2</b></span></h1>
+      <h1>日元兑美元宏观驱动全景 <span class="ver-badge">版本 <b>Ver 1.3</b></span></h1>
       <p>覆盖 2010–2026 的汇率走势与宏观因子联动分析（汇率统一以「每100日元兑美元」表示；数值越低=日元越弱）。含美联储 vs 日本央行利差、贸易差额、Brent 原油、美国 10Y 国债收益率、Carry Trade 逻辑、相关性热力图、因果链模型与动态驱动网络图。汇率取自 FRED / 日本银行官方年度均值（4 位小数）：2010–2025 为官方数据，2026 为上半年实际（橙色点）。</p>
     </div>
     <button class="ver-update-btn" onclick="toggleVerLog()">&#x1f4dc; 更新记录</button>
@@ -197,9 +217,26 @@
   <a href="#causal">⑧ 因果链</a>
   <a href="#network">⑨ 驱动网络</a>
   <a href="#sim">⑩ 情景模拟器</a>
+  <a href="#live">实时追踪</a>
 </div></nav>
 
 <div class="wrap">
+
+  <!-- 实时官方数据追踪 -->
+  <section id="live"><div class="card">
+    <h2 style="margin-top:0">🌐 实时官方数据追踪 <span style="font-size:12px;color:#64748b;font-weight:400">Live Official Data Tracker</span></h2>
+    <div class="live-note">数据基于美 / 日 / 中官方来源<b>动态抓取</b>：美国、日本经 <b>FRED（圣路易斯联储）</b>，中国经 <b>World Bank Open Data</b>（源自中国国家统计局、海关总署）。每张卡片均<b>标注来源</b>。美国 / 日本序列需要 FRED API Key（免费，见右侧链接）；中国指标无需 Key。</div>
+    <div class="fred-key-row">
+      <label>FRED API Key</label>
+      <input id="fredKey" type="password" placeholder="粘贴 FRED Key（美国/日本数据需要，中国数据无需）" autocomplete="off" />
+      <button class="ver-update-btn" onclick="saveFredKey()">保存并刷新</button>
+      <a href="https://fredaccount.stlouisfed.org/apikeys" target="_blank" rel="noopener">免费获取 ↗</a>
+      <span id="fredKeyStatus" class="fred-key-status"></span>
+    </div>
+    <div id="liveGrid" class="live-grid"></div>
+    <div id="liveStatus" class="live-status"></div>
+    <div class="live-note" style="margin-top:10px">注：下方历史走势图（①–⑩）仍为<b>静态基线</b>（2010–2026 官方年度均值），本模块为在其之上追加的实时追踪层。</div>
+  </div></section>
 
   <!-- KPI -->
   <section class="grid3">
@@ -789,6 +826,7 @@ renderSim();
 <script>
 // ===== 顶栏版本号 + 更新记录 =====
 var VER_LOGS = [
+  {version:"Ver 1.3", date:"2026-07-25", desc:"新增实时官方数据追踪模块（FRED 美国/日本 + World Bank 中国，逐卡标注来源）"},
   {version:"Ver 1.2", date:"2026-07-20", desc:"新增顶栏版本徽章与「更新记录」小组件"},
   {version:"Ver 1.1", date:"2026-07-20", desc:"新增访问密钥门禁（cl2026）"},
   {version:"Ver 1.0", date:"2026-07-20", desc:"初始版本上线 GitHub Pages（ver.001 基线）"}
@@ -810,6 +848,128 @@ function toggleVerLog(){
   if(p.classList.contains("show")){p.classList.remove("show");ic.innerHTML='&#x25bc; 展开';}
   else{p.classList.add("show");ic.innerHTML='&#x25b2; 收起';}
 }
+</script>
+<script>
+// ===== 实时官方数据追踪 (ver.004) =====
+(function(){
+  var FRED_KEY = sessionStorage.getItem('jpy_fred_key') || '';
+  var groups = {
+    global: {name:'全球 · 汇率 / 大宗', items:[
+      {id:'DEXJPUS',          label:'USD/JPY 汇率',  unit:'¥/USD',  src:'日本银行 Bank of Japan',            scale:1,    dec:2},
+      {id:'DCOILBRENTEU',     label:'Brent 原油',     unit:'美元/桶', src:'美国能源署 EIA',                   scale:1,    dec:2}
+    ]},
+    us: {name:'美国 United States', items:[
+      {id:'FEDFUNDS',         label:'联邦基金利率',   unit:'%',      src:'Federal Reserve (FOMC)',          scale:1,    dec:2},
+      {id:'DGS10',            label:'10Y 国债收益率', unit:'%',      src:'美国财政部 U.S. Treasury',         scale:1,    dec:2}
+    ]},
+    jp: {name:'日本 Japan', items:[
+      {id:'IRSTCB01JPM156N',  label:'政策利率',       unit:'%',      src:'日本银行 Bank of Japan',            scale:1,    dec:2},
+      {id:'JPNXTNTVA01CXMLM', label:'贸易差额',       unit:'十亿美元', src:'日本财务省 MOF Japan',            scale:1e-9, dec:2}
+    ]},
+    cn: {name:'中国 China', items:[
+      {id:'NY.GDP.MKTP.KD.ZG', label:'GDP 增速',      unit:'%',      src:'中国国家统计局 NBS',                scale:1,    dec:1, wb:true},
+      {id:'TX.VAL.MRCH.CD.WT', label:'货物出口',      unit:'十亿美元', src:'中国海关总署 Customs',           scale:1e-9, dec:0, wb:true},
+      {id:'TM.VAL.MRCH.CD.WT', label:'货物进口',      unit:'十亿美元', src:'中国海关总署 Customs',           scale:1e-9, dec:0, wb:true}
+    ]}
+  };
+  var results = {};
+  function num(v){ var n = parseFloat(v); return isFinite(n) ? n : NaN; }
+  function fmt(item, v){
+    var n = num(v);
+    if(isNaN(n)) return '—';
+    return (n * item.scale).toFixed(item.dec) + (item.unit ? (' ' + item.unit) : '');
+  }
+  function cardHTML(item){
+    var r = results[item.id] || {};
+    var val = r.ok ? fmt(item, r.value) : (r.err ? '获取失败' : '…');
+    var src = item.src + (item.wb ? '' : (' · FRED:' + item.id));
+    var date = r.date ? ('数据日期: ' + r.date) : '';
+    var cls = r.ok ? 'ok' : (r.err ? 'err' : '');
+    return '<div class="live-card ' + cls + '">' +
+      '<div class="live-label">' + item.label + '</div>' +
+      '<div class="live-val">' + val + '</div>' +
+      '<div class="live-date">' + date + '</div>' +
+      '<div class="live-src">来源: ' + src + '</div>' +
+    '</div>';
+  }
+  function render(){
+    var html = '';
+    for(var g in groups){
+      var grp = groups[g];
+      html += '<div class="live-group"><div class="live-group-name">' + grp.name + '</div><div class="live-row">';
+      for(var i=0;i<grp.items.length;i++) html += cardHTML(grp.items[i]);
+      html += '</div></div>';
+    }
+    var us = results['FEDFUNDS'], jp = results['IRSTCB01JPM156N'];
+    if(us && us.ok && jp && jp.ok){
+      var diff = num(us.value) - num(jp.value);
+      html += '<div class="live-group"><div class="live-group-name">衍生 · 美日政策利差</div><div class="live-row">' +
+        '<div class="live-card ok"><div class="live-label">美日政策利差 (Fed − BoJ)</div>' +
+        '<div class="live-val">' + diff.toFixed(2) + ' %</div>' +
+        '<div class="live-date">数据日期: ' + us.date + ' / ' + jp.date + '</div>' +
+        '<div class="live-src">来源: Federal Reserve − 日本银行 (via FRED)</div></div></div></div>';
+    }
+    document.getElementById('liveGrid').innerHTML = html;
+  }
+  function setStatus(msg){ document.getElementById('liveStatus').textContent = msg; }
+  function fetchFRED(item){
+    var url = 'https://api.stlouisfed.org/fred/series/observations?series_id=' + encodeURIComponent(item.id) +
+      '&api_key=' + encodeURIComponent(FRED_KEY) + '&file_type=json&sort_order=desc&limit=1';
+    return fetch(url).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function(d){ var o = (d.observations && d.observations[0]) || {}; return {value:o.value, date:o.date}; });
+  }
+  function fetchWB(item){
+    var url = 'https://api.worldbank.org/v2/country/CHN/indicator/' + encodeURIComponent(item.id) +
+      '?format=json&date=2010:2026&per_page=100';
+    return fetch(url).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function(d){ var arr = (d && d[1]) || []; var best = null;
+        for(var i=0;i<arr.length;i++){ if(arr[i].value != null && (!best || String(arr[i].date) > String(best.date))) best = arr[i]; }
+        if(!best) throw new Error('no data'); return {value:best.value, date:best.date}; });
+  }
+  function loadAll(){
+    if(!FRED_KEY){ setStatus('未配置 FRED Key：美国/日本指标待配置（中国指标将照常获取）。'); }
+    else { setStatus('正在抓取实时数据…'); }
+    var tasks = [];
+    for(var g in groups){
+      var grp = groups[g];
+      for(var i=0;i<grp.items.length;i++){
+        var item = grp.items[i];
+        if(item.wb){ continue; }
+        if(!FRED_KEY){ results[item.id] = {err:true}; continue; }
+        (function(it){
+          tasks.push(fetchFRED(it).then(function(res){ results[it.id] = {ok:true, value:res.value, date:res.date}; })
+            .catch(function(e){ results[it.id] = {err:true, msg:String(e)}; }));
+        })(item);
+      }
+    }
+    for(var g2 in groups){
+      var grp2 = groups[g2];
+      for(var j=0;j<grp2.items.length;j++){
+        var it2 = grp2.items[j];
+        if(!it2.wb){ continue; }
+        (function(it){
+          tasks.push(fetchWB(it).then(function(res){ results[it.id] = {ok:true, value:res.value, date:res.date}; })
+            .catch(function(e){ results[it.id] = {err:true, msg:String(e)}; }));
+        })(it2);
+      }
+    }
+    Promise.all(tasks).then(function(){
+      render();
+      var now = new Date();
+      setStatus('最后更新: ' + now.toLocaleString() + ' · 来源: FRED (St. Louis Fed) / World Bank Open Data');
+    });
+  }
+  window.saveFredKey = function(){
+    var v = document.getElementById('fredKey').value.trim();
+    if(!v){ document.getElementById('fredKeyStatus').textContent = '请输入 Key'; return; }
+    FRED_KEY = v; sessionStorage.setItem('jpy_fred_key', v);
+    document.getElementById('fredKeyStatus').textContent = '已保存';
+    loadAll();
+  };
+  document.getElementById('fredKey').value = FRED_KEY;
+  document.getElementById('fredKeyStatus').textContent = FRED_KEY ? '已保存' : '';
+  loadAll();
+})();
 </script>
 </body>
 </html>
